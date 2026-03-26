@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Slate Health - Business Proposal</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script src="chart.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -26,21 +26,17 @@
     .font-display { font-family: 'Plus Jakarta Sans', sans-serif; }
     .font-mono { font-family: 'JetBrains Mono', monospace; }
 
-    /* Page system - content flows naturally, no forced breaks */
+    /* Page system - fixed A4 pages with consistent structure */
     .page {
         width: 210mm;
-        padding: 16mm 22mm 10mm;
+        min-height: 297mm;
+        padding: 18mm 22mm 16mm;
         position: relative;
+        page-break-after: always;
+        page-break-inside: avoid;
+        overflow: hidden;
     }
     .page:last-child { page-break-after: avoid; }
-    /* Only the cover page gets forced full height */
-    .page.cover { min-height: 297mm; page-break-after: always; padding: 0; }
-    /* TOC gets its own page */
-    .page.toc-page { page-break-after: always; }
-    /* Section headers should not be orphaned */
-    .section-num, .accent-line, h2, h3 { page-break-after: avoid; }
-    /* Tables and charts should not split */
-    .chart-box, .callout, .callout-green, .callout-red, .stat-card, .agent-item, table { page-break-inside: avoid; }
 
     /* Cover page */
     .cover {
@@ -223,15 +219,18 @@
     .cols-3-2 { display: grid; grid-template-columns: 3fr 2fr; gap: 16px; }
     .cols-2-3 { display: grid; grid-template-columns: 2fr 3fr; gap: 16px; }
 
-    /* Footer */
+    /* Footer - pinned to bottom of each page */
     .page-footer {
+        position: absolute;
+        bottom: 10mm;
+        left: 22mm;
+        right: 22mm;
         display: flex;
         justify-content: space-between;
         align-items: center;
         font-size: 8.5px;
         color: #94a3b8;
-        padding-top: 12px;
-        margin-top: 20px;
+        padding-top: 8px;
         border-top: 1px solid #f1f5f9;
     }
     .page-footer .logo-small {
@@ -379,7 +378,7 @@
 <!-- ============================================================ -->
 <!-- PAGE 2: TABLE OF CONTENTS -->
 <!-- ============================================================ -->
-<div class="page toc-page">
+<div class="page">
     <div class="accent-line"></div>
     <h2 style="font-size: 28px; margin-bottom: 32px;">Contents</h2>
     <div>
@@ -461,6 +460,17 @@
             </p>
         </div>
     </div>
+
+    <h3 class="mt-16 mb-8">5-Year Trajectory at a Glance</h3>
+    <table style="font-size: 10px;">
+        <thead><tr><th></th><th style="text-align: center;">Year 1</th><th style="text-align: center;">Year 2</th><th style="text-align: center;">Year 3</th><th style="text-align: center;">Year 4</th><th style="text-align: center;">Year 5</th></tr></thead>
+        <tbody>
+            <tr><td><strong>ARR</strong></td><td style="text-align: center;">$1.2M</td><td style="text-align: center;">$8.4M</td><td style="text-align: center;">$36M</td><td style="text-align: center;">$124M</td><td style="text-align: center; font-weight: 700; color: #059669;">$333M</td></tr>
+            <tr><td><strong>Customers</strong></td><td style="text-align: center;">8</td><td style="text-align: center;">42</td><td style="text-align: center;">138</td><td style="text-align: center;">400</td><td style="text-align: center;">950</td></tr>
+            <tr><td><strong>FTEs Replaced</strong></td><td style="text-align: center;">200+</td><td style="text-align: center;">2,000+</td><td style="text-align: center;">12,000+</td><td style="text-align: center;">40,000+</td><td style="text-align: center;">100,000+</td></tr>
+            <tr><td><strong>Exit Valuation</strong></td><td style="text-align: center;">&mdash;</td><td style="text-align: center;">&mdash;</td><td style="text-align: center;">Series B</td><td style="text-align: center;">IPO-ready</td><td style="text-align: center; font-weight: 700; color: #4F46E5;">$5&ndash;8B</td></tr>
+        </tbody>
+    </table>
 
     <div class="page-footer">
         <div class="logo-small">slate<span>health</span></div>
@@ -1523,10 +1533,10 @@ Clearinghouse                  │  │ (Durable Executor)│ │               
 <!-- CHART SCRIPTS -->
 <!-- ============================================================ -->
 <script>
-// Wait for fonts to load before rendering charts
-document.fonts.ready.then(() => {
-    const defaultFont = { family: "'Inter', sans-serif", size: 9, color: '#94a3b8' };
-    Chart.defaults.font = defaultFont;
+// Render charts immediately (no font-wait for headless PDF compatibility)
+(function() {
+    Chart.defaults.font = { family: "'Inter', sans-serif", size: 9, color: '#94a3b8' };
+    Chart.defaults.animation = false;
 
     // ===== GROWTH CHART =====
     const years = [1970,1976,1982,1988,1994,2000,2006,2012,2018,2024];
@@ -1659,7 +1669,6 @@ document.fonts.ready.then(() => {
             }
         }
     });
-});
 
     // ===== PA SEGMENTS CHART =====
     new Chart(document.getElementById('chartPASegments'), {
@@ -1712,7 +1721,7 @@ document.fonts.ready.then(() => {
             }
         }
     });
-});
+})();
 </script>
 </body>
 </html>
