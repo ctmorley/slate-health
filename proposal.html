@@ -391,6 +391,9 @@
         <div class="toc-item"><div class="toc-num">08</div><div class="toc-title">Unit Economics</div></div>
         <div class="toc-item"><div class="toc-num">09</div><div class="toc-title">Go-to-Market Strategy</div></div>
         <div class="toc-item"><div class="toc-num">10</div><div class="toc-title">Risk Analysis</div></div>
+        <div class="toc-item"><div class="toc-num">11</div><div class="toc-title">Technical Architecture & HIPAA Compliance</div></div>
+        <div class="toc-item"><div class="toc-num">12</div><div class="toc-title">Agent Build Order & Shared Chassis</div></div>
+        <div class="toc-item"><div class="toc-num">13</div><div class="toc-title">Integration Playbook & Phased Build Plan</div></div>
     </div>
     <div class="page-footer">
         <div class="logo-small">slate<span>health</span></div>
@@ -1028,6 +1031,248 @@
     <div class="page-footer">
         <div class="logo-small">slate<span>health</span></div>
         <div>Confidential &mdash; Page 11</div>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE 12: TECHNICAL ARCHITECTURE -->
+<!-- ============================================================ -->
+<div class="page">
+    <div class="section-num">Section 11</div>
+    <div class="accent-line"></div>
+    <h2>Technical Architecture</h2>
+    <div class="section-desc">Production stack for deploying AI agents in HIPAA-compliant healthcare environments. Cloud-first with BAA coverage — on-premise is not required.</div>
+
+    <h3 class="mb-8">Recommended Framework Stack</h3>
+    <table style="font-size: 10px;">
+        <thead><tr><th>Layer</th><th>Tool</th><th>Why</th></tr></thead>
+        <tbody>
+            <tr><td><strong>Agent Orchestration</strong></td><td style="font-weight: 700; color: #4F46E5;">LangGraph</td><td>Graph-based stateful workflows. Self-hosted Enterprise keeps PHI in VPC. Model-agnostic. Every decision path is an inspectable, replayable graph node.</td></tr>
+            <tr><td><strong>Durable Execution</strong></td><td style="font-weight: 700; color: #4F46E5;">Temporal</td><td>Guarantees workflows run to completion despite failures. Self-hosted, open source. Every step persisted, auditable, recoverable.</td></tr>
+            <tr><td><strong>LLM Backend</strong></td><td style="font-weight: 700; color: #4F46E5;">Claude via AWS Bedrock</td><td>Anthropic offers BAAs. Bedrock = HIPAA-eligible infra with zero data retention. No PHI stored or used for training.</td></tr>
+            <tr><td><strong>Integration Engine</strong></td><td style="font-weight: 700; color: #4F46E5;">Mirth Connect</td><td>Open-source. Translates between FHIR, HL7v2, and X12 EDI. The glue between agents and health system infrastructure.</td></tr>
+            <tr><td><strong>Payer Connectivity</strong></td><td style="font-weight: 700; color: #4F46E5;">Availity / Claim.MD</td><td>Clearinghouse APIs that abstract X12 EDI. Startup-friendly onboarding. Don't build raw payer integrations.</td></tr>
+        </tbody>
+    </table>
+
+    <h3 class="mt-16 mb-8">System Architecture</h3>
+    <div class="chart-box" style="padding: 16px; font-family: 'JetBrains Mono', monospace; font-size: 9px; line-height: 1.6; white-space: pre; color: #475569;">Health System (on-prem)         Your Cloud (AWS VPC)             LLM API (Bedrock)
+┌─────────────────┐            ┌──────────────────────┐          ┌──────────────┐
+│ Epic/Cerner EHR  │──FHIR───→│ Integration Engine     │         │ Claude API   │
+│ HL7v2 Feeds      │──HL7v2──→│ (Mirth Connect)        │         │ (via Bedrock)│
+│ Active Directory │──SAML───→│                        │         │ BAA + ZDR    │
+└─────────────────┘            │  ┌──────────────────┐ │         └──────┬───────┘
+                               │  │ Temporal          │ │                │
+Clearinghouse                  │  │ (Durable Executor)│ │                │
+┌─────────────────┐            │  │                   │ │◄───────────────┘
+│ Availity / Change│◄──API───→│  │ LangGraph Agents  │ │
+│ Healthcare       │           │  │ (6 agents)        │ │
+│ (X12 EDI)        │           │  └──────────────────┘ │
+└─────────────────┘            │  ┌──────────────────┐ │
+                               │  │ Audit Log + DB    │ │
+                               │  │ (PostgreSQL)      │ │
+                               │  └──────────────────┘ │
+                               └──────────────────────┘</div>
+
+    <h3 class="mt-12 mb-8">HIPAA Compliance: BAA Availability</h3>
+    <table style="font-size: 10px;">
+        <thead><tr><th>Provider</th><th>BAA</th><th>Covered Services</th><th>NOT Covered</th></tr></thead>
+        <tbody>
+            <tr><td><strong>Anthropic</strong></td><td style="color: #059669; font-weight: 700;">Yes</td><td>Claude API with Zero Data Retention; Enterprise plan</td><td>Free/Pro/Max/Team plans</td></tr>
+            <tr><td><strong>AWS</strong></td><td style="color: #059669; font-weight: 700;">Yes</td><td>Bedrock (all models), Bedrock Agents, AgentCore</td><td>Non-HIPAA-designated accounts</td></tr>
+            <tr><td><strong>Microsoft Azure</strong></td><td style="color: #059669; font-weight: 700;">Yes</td><td>Azure OpenAI Service, Azure AI Foundry</td><td>Consumer services</td></tr>
+            <tr><td><strong>Google Cloud</strong></td><td style="color: #059669; font-weight: 700;">Yes</td><td>Vertex AI, Gemini (with HIPAA project flag)</td><td>Google AI Studio, consumer Gemini</td></tr>
+            <tr><td><strong>OpenAI</strong></td><td style="color: #059669; font-weight: 700;">Yes</td><td>API with Zero Data Retention only</td><td>ChatGPT Free/Plus/Pro/Team</td></tr>
+        </tbody>
+    </table>
+
+    <div class="callout mt-12" style="font-size: 10.5px;">
+        <strong>On-premise is NOT required.</strong> Cloud with a BAA is the mainstream approach used by AKASA, Thoughtful AI, Cohere Health, and every major healthcare AI company. For maximum-security customers, deploy in the customer's own AWS/Azure account under their BAA. Open-source models (LLaMA 3, Gemma) via NVIDIA NIM are available for complete data isolation, with a quality trade-off.
+    </div>
+
+    <div class="page-footer">
+        <div class="logo-small">slate<span>health</span></div>
+        <div>Confidential &mdash; Page 12</div>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE 13: AGENT DIFFICULTY + SHARED CHASSIS -->
+<!-- ============================================================ -->
+<div class="page">
+    <div class="section-num">Section 12</div>
+    <div class="accent-line"></div>
+    <h2>Agent Build Order & Shared Chassis</h2>
+    <div class="section-desc">All 6 agents share a core chassis representing ~60% of the engineering work. Build it once, deploy all agents on top. Ranked from easiest to hardest.</div>
+
+    <h3 class="mb-8">Agent Difficulty Ranking</h3>
+    <table style="font-size: 10px;">
+        <thead><tr><th style="width: 30px;">#</th><th>Agent</th><th>Difficulty</th><th>Key Challenge</th><th style="text-align: right;">Build Time</th></tr></thead>
+        <tbody>
+            <tr>
+                <td style="font-weight: 800; color: #059669;">1</td>
+                <td><strong>Eligibility Verification</strong></td>
+                <td><span style="color: #059669; font-weight: 600;">Low</span></td>
+                <td>Well-standardized (X12 270/271). Clearinghouse APIs handle it cleanly. Minimal judgment.</td>
+                <td style="text-align: right; font-weight: 600;">4-6 wks</td>
+            </tr>
+            <tr>
+                <td style="font-weight: 800; color: #059669;">2</td>
+                <td><strong>Scheduling & Access</strong></td>
+                <td><span style="color: #059669; font-weight: 600;">Low-Med</span></td>
+                <td>EHR scheduling APIs exist (FHIR Appointment). AI layer is NLP + optimization. No payer interaction.</td>
+                <td style="text-align: right; font-weight: 600;">6-8 wks</td>
+            </tr>
+            <tr>
+                <td style="font-weight: 800; color: #F59E0B;">3</td>
+                <td><strong>Credentialing</strong></td>
+                <td><span style="color: #F59E0B; font-weight: 600;">Medium</span></td>
+                <td>Structured but long (90+ day) process. CAQH has APIs. More workflow automation than AI reasoning.</td>
+                <td style="text-align: right; font-weight: 600;">8-10 wks</td>
+            </tr>
+            <tr>
+                <td style="font-weight: 800; color: #F59E0B;">4</td>
+                <td><strong>Compliance & Reporting</strong></td>
+                <td><span style="color: #F59E0B; font-weight: 600;">Medium</span></td>
+                <td>Rule-based at core (HEDIS, MIPS are published specs). AI adds document analysis. Internal-facing = lower risk.</td>
+                <td style="text-align: right; font-weight: 600;">8-10 wks</td>
+            </tr>
+            <tr>
+                <td style="font-weight: 800; color: #E11D48;">5</td>
+                <td><strong>Claims & Billing</strong></td>
+                <td><span style="color: #E11D48; font-weight: 600;">Hard</span></td>
+                <td>Medical coding (ICD-10, CPT) requires deep clinical understanding. Near-zero error tolerance. Complex denial loops.</td>
+                <td style="text-align: right; font-weight: 600;">12-16 wks</td>
+            </tr>
+            <tr>
+                <td style="font-weight: 800; color: #E11D48;">6</td>
+                <td><strong>Prior Authorization</strong></td>
+                <td><span style="color: #E11D48; font-weight: 600;">Very Hard</span></td>
+                <td>Every payer has different rules/forms. No universal API until 2027. Needs clinical judgment + RPA fallback.</td>
+                <td style="text-align: right; font-weight: 600;">16-20 wks</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="callout mt-12" style="font-size: 10.5px;">
+        <strong>Key insight:</strong> The hardest agent (Prior Auth) is the most valuable &mdash; 14 hrs/week per practice, $248B in excess costs. Cohere Health raised $200M on it alone. Strategy: <strong>start with Eligibility</strong> (prove the platform) but <strong>invest heavily in Prior Auth</strong> (where the money is).
+    </div>
+
+    <h3 class="mt-16 mb-8">Shared Agent Chassis (60% of engineering)</h3>
+    <div class="agent-grid">
+        <div class="agent-item">
+            <h3>FHIR/HL7 Data Ingestion</h3>
+            <p>Read patient/encounter context from EHR via standardized interfaces. Canonical data model maps all formats.</p>
+        </div>
+        <div class="agent-item">
+            <h3>LLM Reasoning Layer</h3>
+            <p>LangGraph + Claude. Understands tasks, makes decisions, handles edge cases. Graph-based for auditability.</p>
+        </div>
+        <div class="agent-item">
+            <h3>Deterministic Action Execution</h3>
+            <p>LLM decides WHAT to do. Validated code executes HOW. No free-form LLM output touching production systems.</p>
+        </div>
+        <div class="agent-item">
+            <h3>Human-in-the-Loop Escalation</h3>
+            <p>Confidence thresholds route uncertain decisions to human review. All denials involve human oversight.</p>
+        </div>
+        <div class="agent-item">
+            <h3>Audit Trail & Compliance</h3>
+            <p>Every decision, API call, and data access logged to immutable store. Full replay capability for any transaction.</p>
+        </div>
+        <div class="agent-item">
+            <h3>Payer Rule Engine</h3>
+            <p>Each payer has different rules. Agents reference a continuously updated rules database. Versioned and auditable.</p>
+        </div>
+    </div>
+
+    <div class="page-footer">
+        <div class="logo-small">slate<span>health</span></div>
+        <div>Confidential &mdash; Page 13</div>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE 14: INTEGRATION + BUILD PLAN -->
+<!-- ============================================================ -->
+<div class="page">
+    <div class="section-num">Section 13</div>
+    <div class="accent-line"></div>
+    <h2>Integration Playbook & Phased Build Plan</h2>
+    <div class="section-desc">The hardest part isn't the AI &mdash; it's the integration slog and health system procurement cycle. Here's how to move fastest.</div>
+
+    <h3 class="mb-8">Integration Timelines</h3>
+    <table style="font-size: 10px;">
+        <thead><tr><th>Integration</th><th>Timeline</th><th>Who Does It</th><th>Self-Service?</th></tr></thead>
+        <tbody>
+            <tr><td>SSO (SAML/OIDC)</td><td>2-4 weeks</td><td>Health system IT</td><td style="color: #059669; font-weight: 600;">Yes</td></tr>
+            <tr><td>Eligibility via clearinghouse</td><td>1-2 months</td><td>Your eng + their billing</td><td style="color: #F59E0B; font-weight: 600;">Partial</td></tr>
+            <tr><td>Claims via clearinghouse</td><td>2-3 months</td><td>Your engineers</td><td style="color: #E11D48; font-weight: 600;">No</td></tr>
+            <tr><td>FHIR read from Epic/Oracle</td><td>3-6 months</td><td>Your eng + their IT</td><td style="color: #E11D48; font-weight: 600;">No</td></tr>
+            <tr><td>FHIR write-back to EHR</td><td>6-12 months</td><td>Your eng + their IT</td><td style="color: #E11D48; font-weight: 600;">No</td></tr>
+            <tr><td>Prior auth (multi-payer)</td><td>3-6 months</td><td>Your engineers (ongoing)</td><td style="color: #E11D48; font-weight: 600;">No</td></tr>
+            <tr><td>Full 6-agent deployment</td><td>6-12 months</td><td>Embedded on-site</td><td style="color: #E11D48; font-weight: 600;">No</td></tr>
+        </tbody>
+    </table>
+
+    <h3 class="mt-16 mb-8">EHR Priority Order</h3>
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
+        <div class="stat-card green" style="padding: 12px;">
+            <div class="stat-num text-green" style="font-size: 16px;">1st</div>
+            <div class="stat-label"><strong style="color: #1a1a2e;">athenahealth</strong><br>Cloud-native, best APIs, 3-6 mo integration. Start here.</div>
+        </div>
+        <div class="stat-card accent" style="padding: 12px;">
+            <div class="stat-num text-indigo" style="font-size: 16px;">2nd</div>
+            <div class="stat-label"><strong style="color: #1a1a2e;">Epic</strong><br>50%+ market share. 6-12 mo integration. Begin App Market review in Month 1.</div>
+        </div>
+        <div class="stat-card" style="padding: 12px;">
+            <div class="stat-num" style="font-size: 16px; color: #1a1a2e;">3rd</div>
+            <div class="stat-label"><strong style="color: #1a1a2e;">Oracle Health</strong><br>FHIR R4 via Ignite APIs. 6-12 mo. More open than Epic historically.</div>
+        </div>
+        <div class="stat-card" style="padding: 12px;">
+            <div class="stat-num" style="font-size: 16px; color: #1a1a2e;">4th</div>
+            <div class="stat-label"><strong style="color: #1a1a2e;">MEDITECH</strong><br>Limited APIs (older installs). HL7v2 only. 6-18 mo. Last priority.</div>
+        </div>
+    </div>
+
+    <h3 class="mt-16 mb-8">12-Month Phased Build Plan</h3>
+    <table style="font-size: 10px;">
+        <thead><tr><th>Phase</th><th>Months</th><th>Deliverables</th><th>Team</th></tr></thead>
+        <tbody>
+            <tr>
+                <td style="font-weight: 700; color: #059669;">1. Foundation</td>
+                <td>1-3</td>
+                <td>Shared chassis (LangGraph + Temporal + Bedrock). <strong>Eligibility Agent</strong> live. Availity connected. SSO. 2-3 athenahealth pilots. Epic App Market review started.</td>
+                <td>4-6 eng</td>
+            </tr>
+            <tr>
+                <td style="font-weight: 700; color: #4F46E5;">2. Expand</td>
+                <td>3-6</td>
+                <td><strong>Scheduling Agent</strong> + <strong>Claims Agent</strong> live. Change Healthcare as 2nd clearinghouse. Human review dashboard. 8-10 customers. HIPAA BAA executed.</td>
+                <td>6-8 eng</td>
+            </tr>
+            <tr>
+                <td style="font-weight: 700; color: #E11D48;">3. Monetize</td>
+                <td>6-9</td>
+                <td><strong>Prior Auth Agent</strong> live (the big one). Portal automation (RPA). Da Vinci PAS support. Epic approval. First Epic customer. <strong>Series A.</strong></td>
+                <td>8-12 eng</td>
+            </tr>
+            <tr>
+                <td style="font-weight: 700; color: #7C3AED;">4. Full Platform</td>
+                <td>9-12</td>
+                <td><strong>Credentialing</strong> + <strong>Compliance</strong> agents live. First hospital system (all 6 agents). Oracle Health integration. Published case studies. 20-30 customers. <strong>~$5M ARR.</strong></td>
+                <td>10-15 eng</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="callout-green mt-12" style="font-size: 10.5px;">
+        <strong>Speed multipliers:</strong> (1) Start with athenahealth &mdash; 3x faster integration than Epic. (2) Use Availity/Claim.MD &mdash; fastest clearinghouse onboarding. (3) Build integration engine once with Mirth Connect &mdash; each new customer is config, not code. (4) Build Da Vinci PAS now &mdash; be ready when CMS mandate hits 2027 and competitors scramble.
+    </div>
+
+    <div class="page-footer">
+        <div class="logo-small">slate<span>health</span></div>
+        <div>Confidential &mdash; Page 14</div>
     </div>
 </div>
 
