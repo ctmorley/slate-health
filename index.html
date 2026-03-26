@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slate Health - AI Agents That Replace Healthcare Administrators</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        slate_d: {
+                            950: '#080C14',
+                            900: '#0C1322',
+                            800: '#111B30',
+                            700: '#182440',
+                            600: '#1E2D4A',
+                        },
+                        accent: {
+                            600: '#4F46E5',
+                            500: '#6366F1',
+                            400: '#818CF8',
+                            300: '#A5B4FC',
+                        },
+                        mint: {
+                            500: '#10B981',
+                            400: '#34D399',
+                            300: '#6EE7B7',
+                        },
+                        coral: {
+                            500: '#F43F5E',
+                            400: '#FB7185',
+                        },
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        display: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { scroll-behavior: smooth; }
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: #080C14;
+            color: #f1f5f9;
+        }
+        .font-display { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+        /* Hero */
+        .hero-bg {
+            background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(99,102,241,0.12) 0%, transparent 60%),
+                        radial-gradient(ellipse 50% 40% at 80% 20%, rgba(16,185,129,0.06) 0%, transparent 50%),
+                        #080C14;
+        }
+
+        /* Grid pattern overlay */
+        .grid-pattern {
+            background-image:
+                linear-gradient(rgba(99,102,241,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(99,102,241,0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+
+        /* Glow effects */
+        .glow-indigo { box-shadow: 0 0 40px rgba(99,102,241,0.15); }
+        .glow-green { box-shadow: 0 0 40px rgba(16,185,129,0.15); }
+
+        /* Card styles */
+        .glass-card {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.06);
+            backdrop-filter: blur(12px);
+        }
+        .glass-card:hover {
+            background: rgba(255,255,255,0.04);
+            border-color: rgba(99,102,241,0.2);
+        }
+
+        /* Range sliders */
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 4px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 999px;
+            outline: none;
+            transition: background 0.2s;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #6366F1;
+            cursor: pointer;
+            box-shadow: 0 0 0 4px rgba(99,102,241,0.2), 0 0 16px rgba(99,102,241,0.3);
+            transition: all 0.2s;
+        }
+        input[type="range"]::-webkit-slider-thumb:hover {
+            background: #818CF8;
+            box-shadow: 0 0 0 6px rgba(99,102,241,0.25), 0 0 24px rgba(99,102,241,0.4);
+        }
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #6366F1;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 0 0 4px rgba(99,102,241,0.2);
+        }
+
+        /* Animated number transitions */
+        .num-transition {
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Agent cards */
+        .agent-card {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.06);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .agent-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--agent-color, #6366F1), transparent);
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+        .agent-card:hover::before { opacity: 1; }
+        .agent-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            border-color: rgba(99,102,241,0.15);
+        }
+
+        /* Savings display */
+        .savings-glow {
+            background: linear-gradient(135deg, rgba(16,185,129,0.08) 0%, rgba(99,102,241,0.08) 100%);
+            border: 1px solid rgba(16,185,129,0.2);
+            position: relative;
+        }
+        .savings-glow::before {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            border-radius: inherit;
+            background: linear-gradient(135deg, rgba(16,185,129,0.15), rgba(99,102,241,0.15));
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask-composite: xor;
+            -webkit-mask-composite: xor;
+            padding: 1px;
+        }
+
+        /* Pulse CTA */
+        .pulse-cta {
+            animation: pulseCta 2.5s ease-in-out infinite;
+        }
+        @keyframes pulseCta {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(99,102,241,0.4); }
+            50% { box-shadow: 0 0 0 14px rgba(99,102,241,0); }
+        }
+
+        /* Counter badge */
+        .counter-badge {
+            background: linear-gradient(135deg, #4F46E5, #7C3AED);
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Checkbox */
+        .task-check { accent-color: #6366F1; }
+
+        /* Scroll reveal */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Gradient text */
+        .grad-text {
+            background: linear-gradient(135deg, #818CF8, #6366F1, #A78BFA);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .grad-green {
+            background: linear-gradient(135deg, #34D399, #10B981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Stat number styling */
+        .stat-num { font-variant-numeric: tabular-nums; }
+
+        /* Comparison bar */
+        .bar-admin {
+            background: linear-gradient(90deg, #6366F1, #818CF8);
+            animation: growBar 2s ease-out forwards;
+        }
+        .bar-docs {
+            background: linear-gradient(90deg, #FB7185, #FDA4AF);
+            animation: growBar 2s ease-out forwards;
+        }
+        @keyframes growBar {
+            from { width: 0; }
+        }
+
+        /* Org type buttons */
+        .org-btn {
+            transition: all 0.25s ease;
+        }
+        .org-btn.active {
+            background: rgba(99,102,241,0.1);
+            border-color: rgba(99,102,241,0.4);
+            color: #818CF8;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+<!-- Navigation -->
+<nav class="fixed top-0 w-full z-50 border-b border-white/[0.04]" style="background: rgba(8,12,20,0.85); backdrop-filter: blur(20px) saturate(180%);">
+    <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+        <a href="#" class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-accent-500 to-accent-600 flex items-center justify-center">
+                <svg class="w-4.5 h-4.5 text-white" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </div>
+            <span class="font-display font-bold text-[1.15rem] tracking-tight text-white">slate<span class="text-accent-400">health</span></span>
+        </a>
+        <div class="hidden md:flex items-center gap-8">
+            <a href="#problem" class="text-sm text-white/40 hover:text-white/80 transition-colors">Problem</a>
+            <a href="#agents" class="text-sm text-white/40 hover:text-white/80 transition-colors">Agents</a>
+            <a href="#roi" class="text-sm text-white/40 hover:text-white/80 transition-colors">ROI Calculator</a>
+            <a href="#pricing" class="text-sm text-white/40 hover:text-white/80 transition-colors">Pricing</a>
+            <a href="#demo" class="text-sm font-semibold text-white bg-accent-600 hover:bg-accent-500 px-5 py-2 rounded-lg transition-colors">Get a Demo</a>
+        </div>
+    </div>
+</nav>
+
+<!-- ==================== HERO ==================== -->
+<section class="hero-bg grid-pattern min-h-screen flex items-center relative pt-16">
+    <div class="max-w-7xl mx-auto px-6 py-24 relative z-10">
+        <div class="max-w-[52rem]">
+            <!-- Badge -->
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-accent-500/20 bg-accent-500/[0.07] mb-8">
+                <span class="relative flex h-2 w-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-accent-400"></span>
+                </span>
+                <span class="text-accent-300 text-sm font-medium">Healthcare has 10 administrators for every 1 physician</span>
+            </div>
+
+            <!-- Headline -->
+            <h1 class="font-display text-[3.5rem] md:text-[4.75rem] font-extrabold leading-[1.05] tracking-tight mb-6">
+                Wipe the slate<br>
+                <span class="grad-text">clean on admin.</span>
+            </h1>
+
+            <p class="text-lg md:text-xl text-white/40 max-w-2xl leading-relaxed mb-10">
+                Healthcare managers grew <span class="text-coral-400 font-semibold">4,800%</span> since 1970.
+                Physicians grew 200%. The US spends <span class="text-white/70 font-semibold">$496B/year</span> on billing and insurance admin alone.
+                Slate deploys AI agents that do what administrators do &mdash; for a fraction of the cost.
+            </p>
+
+            <!-- CTAs -->
+            <div class="flex flex-col sm:flex-row gap-4 mb-20">
+                <a href="#roi" class="pulse-cta inline-flex items-center justify-center gap-2 bg-accent-600 hover:bg-accent-500 text-white font-semibold text-lg px-8 py-4 rounded-xl transition-all">
+                    Calculate Your Savings
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+                </a>
+                <a href="#agents" class="inline-flex items-center justify-center gap-2 border border-white/10 hover:border-white/20 text-white/70 hover:text-white font-medium text-lg px-8 py-4 rounded-xl transition-all hover:bg-white/[0.03]">
+                    See the AI Agents
+                </a>
+            </div>
+
+            <!-- Hero Stats Row -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div class="glass-card rounded-xl p-5 transition-all duration-300">
+                    <div class="text-2xl md:text-3xl font-display font-extrabold text-accent-400 stat-num">$496B</div>
+                    <div class="text-xs text-white/30 mt-1.5 leading-snug">Billing &amp; insurance admin costs per year</div>
+                </div>
+                <div class="glass-card rounded-xl p-5 transition-all duration-300">
+                    <div class="text-2xl md:text-3xl font-display font-extrabold text-coral-400 stat-num">4,800%</div>
+                    <div class="text-xs text-white/30 mt-1.5 leading-snug">Admin headcount growth since 1970</div>
+                </div>
+                <div class="glass-card rounded-xl p-5 transition-all duration-300">
+                    <div class="text-2xl md:text-3xl font-display font-extrabold text-white stat-num">10 : 1</div>
+                    <div class="text-xs text-white/30 mt-1.5 leading-snug">Administrators to every physician</div>
+                </div>
+                <div class="glass-card rounded-xl p-5 transition-all duration-300">
+                    <div class="text-2xl md:text-3xl font-display font-extrabold text-mint-400 stat-num">$248B</div>
+                    <div class="text-xs text-white/30 mt-1.5 leading-snug">Excess unnecessary admin waste</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== THE PROBLEM ==================== -->
+<section id="problem" class="py-28 relative" style="background: linear-gradient(180deg, #080C14 0%, #0C1322 100%);">
+    <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-20 reveal">
+            <p class="text-accent-400 text-sm font-semibold uppercase tracking-widest mb-4">The Problem</p>
+            <h2 class="font-display text-4xl md:text-[3.5rem] font-extrabold tracking-tight mb-5">The bureaucracy is the disease.</h2>
+            <p class="text-white/40 text-lg max-w-2xl mx-auto">Since 1970, healthcare added administrators 24x faster than physicians. This graph tells the entire story.</p>
+        </div>
+
+        <div class="grid lg:grid-cols-5 gap-10 items-start">
+            <!-- Chart: takes 3 cols -->
+            <div class="lg:col-span-3 reveal">
+                <div class="glass-card rounded-2xl p-6 md:p-8">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="font-display font-bold text-lg">Growth Since 1970</h3>
+                        <div class="flex items-center gap-5">
+                            <div class="flex items-center gap-2"><div class="w-2.5 h-2.5 rounded-full bg-accent-400"></div><span class="text-xs text-white/40">Healthcare Managers</span></div>
+                            <div class="flex items-center gap-2"><div class="w-2.5 h-2.5 rounded-full bg-coral-400"></div><span class="text-xs text-white/40">Physicians</span></div>
+                        </div>
+                    </div>
+                    <div style="height: 400px;"><canvas id="growthChart"></canvas></div>
+                    <p class="text-[11px] text-white/20 mt-4">Source: Current Population Survey, Bureau of Labor Statistics &amp; National Center for Health Statistics (Himmelstein &amp; Woolhandler)</p>
+                </div>
+            </div>
+
+            <!-- Stats: takes 2 cols -->
+            <div class="lg:col-span-2 space-y-4 reveal">
+                <div class="glass-card rounded-xl p-5 transition-all duration-300">
+                    <div class="text-3xl font-display font-extrabold text-coral-400 stat-num">$1.1T</div>
+                    <div class="text-sm text-white/50 font-medium mt-1">Total admin costs per year</div>
+                    <div class="text-xs text-white/30 mt-2 leading-relaxed">More than the GDP of Indonesia. Spent on paperwork, not patient care.</div>
+                </div>
+                <div class="glass-card rounded-xl p-5 transition-all duration-300">
+                    <div class="text-3xl font-display font-extrabold text-accent-400 stat-num">$57 / denial</div>
+                    <div class="text-sm text-white/50 font-medium mt-1">Cost to rework a denied claim</div>
+                    <div class="text-xs text-white/30 mt-2 leading-relaxed">11.8% of claims are denied. 81.7% get overturned on appeal. Pure friction.</div>
+                </div>
+                <div class="glass-card rounded-xl p-5 transition-all duration-300">
+                    <div class="text-3xl font-display font-extrabold text-white stat-num">14 hrs/week</div>
+                    <div class="text-sm text-white/50 font-medium mt-1">Prior auth time per practice</div>
+                    <div class="text-xs text-white/30 mt-2 leading-relaxed">Two full business days every week. On phone holds and fax machines.</div>
+                </div>
+                <div class="glass-card rounded-xl p-5 transition-all duration-300">
+                    <div class="text-3xl font-display font-extrabold text-mint-400 stat-num">5x</div>
+                    <div class="text-sm text-white/50 font-medium mt-1">US vs. peer nations</div>
+                    <div class="text-xs text-white/30 mt-2 leading-relaxed">$1,078/person vs. ~$200 elsewhere. Canada runs at 2.7% admin. The US: 15-25%.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cost breakdown row -->
+        <div class="grid md:grid-cols-3 gap-4 mt-12 reveal">
+            <div class="glass-card rounded-2xl p-8 text-center">
+                <div class="text-4xl md:text-5xl font-display font-extrabold text-coral-400 stat-num">$83B</div>
+                <div class="text-white/60 font-medium mt-3">Routine admin transactions</div>
+                <div class="text-white/30 text-sm mt-2">Staff time on eligibility, claims, prior auth, payment posting. Providers pay 97% of this.</div>
+            </div>
+            <div class="glass-card rounded-2xl p-8 text-center">
+                <div class="text-4xl md:text-5xl font-display font-extrabold text-accent-400 stat-num">$150B</div>
+                <div class="text-white/60 font-medium mt-3">No-show losses</div>
+                <div class="text-white/30 text-sm mt-2">18-23% of appointments are no-shows. AI scheduling and outreach cuts this 50-70%.</div>
+            </div>
+            <div class="glass-card rounded-2xl p-8 text-center">
+                <div class="text-4xl md:text-5xl font-display font-extrabold text-mint-400 stat-num">$38.6B</div>
+                <div class="text-white/60 font-medium mt-3">Regulatory compliance</div>
+                <div class="text-white/30 text-sm mt-2">59 FTEs per hospital on compliance alone. $7.6M/year each &mdash; filing paperwork, not treating patients.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== AI AGENTS ==================== -->
+<section id="agents" class="py-28" style="background: #080C14;">
+    <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-20 reveal">
+            <p class="text-accent-400 text-sm font-semibold uppercase tracking-widest mb-4">The Solution</p>
+            <h2 class="font-display text-4xl md:text-[3.5rem] font-extrabold tracking-tight mb-5">Six agents. Zero administrators.</h2>
+            <p class="text-white/40 text-lg max-w-2xl mx-auto">Each Slate agent replaces an entire admin department. They run 24/7, process thousands of transactions per hour, and improve every day.</p>
+        </div>
+
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5 reveal">
+            <!-- Prior Auth -->
+            <div class="agent-card rounded-2xl p-7" style="--agent-color: #6366F1;">
+                <div class="w-12 h-12 rounded-xl bg-accent-500/10 flex items-center justify-center mb-5">
+                    <svg class="w-6 h-6 text-accent-400" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                </div>
+                <h3 class="font-display text-lg font-bold mb-2">Prior Authorization</h3>
+                <p class="text-white/40 text-sm leading-relaxed mb-4">Submits, tracks, and appeals prior auths automatically. Gathers clinical docs, monitors status, manages renewals and expirations.</p>
+                <div class="flex flex-wrap gap-2">
+                    <span class="text-[11px] px-2.5 py-1 rounded-full bg-accent-500/10 text-accent-300 font-medium">14 hrs/week saved per practice</span>
+                    <span class="text-[11px] px-2.5 py-1 rounded-full bg-white/[0.04] text-white/40 font-medium">81.7% appeal success</span>
+                </div>
+            </div>
+
+            <!-- Claims & Billing -->
+            <div class="agent-card rounded-2xl p-7" style="--agent-color: #10B981;">
+                <div class="w-12 h-12 rounded-xl bg-mint-500/10 flex items-center justify-center mb-5">
+                    <svg class="w-6 h-6 text-mint-400" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM10 8.5a.5.5 0 11-1 0 .5.5 0 011 0zm5 5a.5.5 0 11-1 0 .5.5 0 011 0z"/></svg>
+                </div>
+                <h3 class="font-display text-lg font-bold mb-2">Claims & Billing</h3>
+                <p class="text-white/40 text-sm leading-relaxed mb-4">Codes encounters (ICD-10, CPT, HCPCS), submits claims, posts payments, catches denials before they happen, and files appeals.</p>
+                <div class="flex flex-wrap gap-2">
+                    <span class="text-[11px] px-2.5 py-1 rounded-full bg-mint-500/10 text-mint-300 font-medium">$57/denial eliminated</span>
+                    <span class="text-[11px] px-2.5 py-1 rounded-full bg-white/[0.04] text-white/40 font-medium">Cuts denial rate 40-60%</span>
+                </div>
+            </div>
+
+            <!-- Scheduling -->
+            <div class="agent-card rounded-2xl p-7" style="--agent-color: #3B82F6;">
+                <div class="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center mb-5">
+                    <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                </div>
+                <h3 class="font-display text-lg font-bold mb-2">Scheduling & Access</h3>
+                <p class="text-white/40 text-sm leading-relaxed mb-4">Manages appointments, waitlists, referrals, and no-show prediction. AI outreach reduces no-shows by 50-70%. 24/7 patient access.</p>
+                <div class="flex flex-wrap gap-2">
+                    <span class="text-[11px] px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-300 font-medium">$150B no-show market</span>
+                    <span class="text-[11px] px-2.5 py-1 rounded-full bg-white/[0.04] text-white/40 font-medium">24/7 availability</span>
+                </div>
+            </div>
+
+            <!-- Eligibility -->
+            <div class="agent-card rounded-2xl p-7" style="--agent-color: #06B6D4;">
+                <div class="w-12 h-12 rounded-xl bg-cyan-500/10 flex items-center justify-center mb-5">
+                    <svg class="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/></svg>
+                </div>
+                <h3 class="font-display text-lg font-bold mb-2">Eligibility Verification</h3>
+                <p class="text-white/40 text-sm leading-relaxed mb-4">Real-time insurance verification, benefits confirmation, network checks, and multi-plan coordination. Instant, not 12-30 minutes.</p>
+                <div class="flex flex-wrap gap-2">
+                    <span class="text-[11px] px-2.5 py-1 rounded-full bg-cyan-500/10 text-cyan-300 font-medium">$14 &rarr; &lt;$1 per check</span>
+                    <span class="text-[11px] px-2.5 py-1 rounded-full bg-white/[0.04] text-white/40 font-medium">93% faster</span>
+                </div>
+            </div>
+
+            <!-- Credentialing -->
+            <div class="agent-card rounded-2xl p-7" style="--agent-color: #A78BFA;">
+                <div class="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center mb-5">
+                    <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                </div>
+                <h3 class="font-display text-lg font-bold mb-2">Credentialing</h3>
+                <p class="text-white/40 text-sm leading-relaxed mb-4">Provider credentialing and payer enrollment in days, not months. CAQH management, license tracking, malpractice verification.</p>
+                <div class="flex flex-wrap gap-2">
+                    <span class="text-[11px] px-2.5 py-1 rounded-full bg-purple-500/10 text-purple-300 font-medium">90 &rarr; 14 days</span>
+                    <span class="text-[11px] px-2.5 py-1 rounded-full bg-white/[0.04] text-white/40 font-medium">$3,500 &rarr; $200/provider</span>
+                </div>
+            </div>
+
+            <!-- Compliance -->
+            <div class="agent-card rounded-2xl p-7" style="--agent-color: #F43F5E;">
+                <div class="w-12 h-12 rounded-xl bg-coral-500/10 flex items-center justify-center mb-5">
+                    <svg class="w-6 h-6 text-coral-400" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                </div>
+                <h3 class="font-display text-lg font-bold mb-2">Compliance & Reporting</h3>
+                <p class="text-white/40 text-sm leading-relaxed mb-4">Continuous HIPAA monitoring, quality measures (HEDIS, MIPS, CMS Stars), documentation audits, and regulatory tracking.</p>
+                <div class="flex flex-wrap gap-2">
+                    <span class="text-[11px] px-2.5 py-1 rounded-full bg-coral-500/10 text-coral-400 font-medium">59 FTEs &rarr; 3 FTEs</span>
+                    <span class="text-[11px] px-2.5 py-1 rounded-full bg-white/[0.04] text-white/40 font-medium">$7.6M saved per hospital</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== ROI CALCULATOR ==================== -->
+<section id="roi" class="py-28 relative" style="background: linear-gradient(180deg, #0C1322, #080C14);">
+    <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-16 reveal">
+            <p class="text-accent-400 text-sm font-semibold uppercase tracking-widest mb-4">ROI Calculator</p>
+            <h2 class="font-display text-4xl md:text-[3.5rem] font-extrabold tracking-tight mb-5">See what you'll save.</h2>
+            <p class="text-white/40 text-lg max-w-2xl mx-auto">Input your numbers. Get your answer. No sales call required.</p>
+        </div>
+
+        <div class="grid lg:grid-cols-5 gap-8 reveal">
+            <!-- INPUTS: 3 cols -->
+            <div class="lg:col-span-3 glass-card rounded-2xl p-8 md:p-10">
+
+                <!-- Org Type -->
+                <div class="mb-10">
+                    <label class="text-xs text-white/40 font-semibold uppercase tracking-wider mb-3 block">Organization Type</label>
+                    <div class="grid grid-cols-3 gap-3">
+                        <button onclick="setOrg('clinic')" id="org-clinic" class="org-btn px-4 py-3.5 rounded-xl border border-white/8 text-sm font-medium text-white/50 text-center">
+                            Small Clinic<br><span class="text-[11px] text-white/25">1-10 providers</span>
+                        </button>
+                        <button onclick="setOrg('practice')" id="org-practice" class="org-btn px-4 py-3.5 rounded-xl border border-white/8 text-sm font-medium text-white/50 text-center">
+                            Mid Practice<br><span class="text-[11px] text-white/25">10-50 providers</span>
+                        </button>
+                        <button onclick="setOrg('hospital')" id="org-hospital" class="org-btn active px-4 py-3.5 rounded-xl border border-white/8 text-sm font-medium text-white/50 text-center">
+                            Hospital/System<br><span class="text-[11px] text-white/25">50+ providers</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Staff Count -->
+                <div class="mb-10">
+                    <div class="flex justify-between items-baseline mb-3">
+                        <label class="text-xs text-white/40 font-semibold uppercase tracking-wider">Administrative Staff</label>
+                        <span id="lbl-staff" class="text-xl font-display font-bold text-white stat-num">64</span>
+                    </div>
+                    <input type="range" id="inp-staff" min="1" max="500" value="64" oninput="calc()">
+                    <div class="flex justify-between text-[11px] text-white/20 mt-1.5"><span>1</span><span>250</span><span>500</span></div>
+                </div>
+
+                <!-- Avg Salary -->
+                <div class="mb-10">
+                    <div class="flex justify-between items-baseline mb-3">
+                        <label class="text-xs text-white/40 font-semibold uppercase tracking-wider">Avg. Admin Salary (with benefits)</label>
+                        <span id="lbl-salary" class="text-xl font-display font-bold text-white stat-num">$72,800</span>
+                    </div>
+                    <input type="range" id="inp-salary" min="35000" max="180000" step="1000" value="72800" oninput="calc()">
+                    <div class="flex justify-between text-[11px] text-white/20 mt-1.5"><span>$35K</span><span>$107K</span><span>$180K</span></div>
+                </div>
+
+                <!-- Tasks -->
+                <div class="mb-10">
+                    <label class="text-xs text-white/40 font-semibold uppercase tracking-wider mb-4 block">Tasks to Automate</label>
+                    <div class="grid sm:grid-cols-2 gap-2.5">
+                        <label class="flex items-center gap-3 px-4 py-3 rounded-xl border border-white/[0.06] hover:border-accent-500/20 transition-colors cursor-pointer">
+                            <input type="checkbox" class="task-check w-4 h-4 rounded" checked data-pct="25" onchange="calc()">
+                            <div><div class="text-sm font-medium">Prior Authorization</div><div class="text-[11px] text-white/30">~25% of admin time</div></div>
+                        </label>
+                        <label class="flex items-center gap-3 px-4 py-3 rounded-xl border border-white/[0.06] hover:border-accent-500/20 transition-colors cursor-pointer">
+                            <input type="checkbox" class="task-check w-4 h-4 rounded" checked data-pct="25" onchange="calc()">
+                            <div><div class="text-sm font-medium">Claims & Billing</div><div class="text-[11px] text-white/30">~25% of admin time</div></div>
+                        </label>
+                        <label class="flex items-center gap-3 px-4 py-3 rounded-xl border border-white/[0.06] hover:border-accent-500/20 transition-colors cursor-pointer">
+                            <input type="checkbox" class="task-check w-4 h-4 rounded" checked data-pct="15" onchange="calc()">
+                            <div><div class="text-sm font-medium">Scheduling & Access</div><div class="text-[11px] text-white/30">~15% of admin time</div></div>
+                        </label>
+                        <label class="flex items-center gap-3 px-4 py-3 rounded-xl border border-white/[0.06] hover:border-accent-500/20 transition-colors cursor-pointer">
+                            <input type="checkbox" class="task-check w-4 h-4 rounded" checked data-pct="10" onchange="calc()">
+                            <div><div class="text-sm font-medium">Eligibility Verification</div><div class="text-[11px] text-white/30">~10% of admin time</div></div>
+                        </label>
+                        <label class="flex items-center gap-3 px-4 py-3 rounded-xl border border-white/[0.06] hover:border-accent-500/20 transition-colors cursor-pointer">
+                            <input type="checkbox" class="task-check w-4 h-4 rounded" checked data-pct="10" onchange="calc()">
+                            <div><div class="text-sm font-medium">Credentialing</div><div class="text-[11px] text-white/30">~10% of admin time</div></div>
+                        </label>
+                        <label class="flex items-center gap-3 px-4 py-3 rounded-xl border border-white/[0.06] hover:border-accent-500/20 transition-colors cursor-pointer">
+                            <input type="checkbox" class="task-check w-4 h-4 rounded" checked data-pct="15" onchange="calc()">
+                            <div><div class="text-sm font-medium">Compliance & Reporting</div><div class="text-[11px] text-white/30">~15% of admin time</div></div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Automation Rate -->
+                <div>
+                    <div class="flex justify-between items-baseline mb-3">
+                        <label class="text-xs text-white/40 font-semibold uppercase tracking-wider">AI Automation Rate</label>
+                        <span id="lbl-rate" class="text-xl font-display font-bold text-accent-400 stat-num">85%</span>
+                    </div>
+                    <input type="range" id="inp-rate" min="50" max="95" value="85" oninput="calc()">
+                    <div class="flex justify-between text-[11px] text-white/20 mt-1.5"><span>Conservative 50%</span><span>Aggressive 95%</span></div>
+                </div>
+            </div>
+
+            <!-- RESULTS: 2 cols -->
+            <div class="lg:col-span-2 space-y-5">
+                <!-- Big number -->
+                <div class="savings-glow rounded-2xl p-8 md:p-10 text-center">
+                    <div class="text-xs text-mint-400/70 font-semibold uppercase tracking-widest mb-2">Annual Net Savings</div>
+                    <div id="out-total" class="text-5xl md:text-6xl font-display font-extrabold text-mint-400 stat-num num-transition">$3,366,272</div>
+                    <div class="text-white/30 text-sm mt-2">with Slate Health AI agents</div>
+                </div>
+
+                <!-- Breakdown -->
+                <div class="glass-card rounded-2xl p-7">
+                    <h4 class="font-display font-bold mb-5">Breakdown</h4>
+                    <div class="space-y-3.5">
+                        <div class="flex justify-between items-center text-sm pb-3.5 border-b border-white/[0.04]">
+                            <span class="text-white/40">Current admin spend</span>
+                            <span id="out-spend" class="font-mono font-medium text-white/80">$4,659,200</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm pb-3.5 border-b border-white/[0.04]">
+                            <span class="text-white/40">Automatable portion</span>
+                            <span id="out-auto" class="font-mono font-medium text-accent-400">$4,659,200</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm pb-3.5 border-b border-white/[0.04]">
+                            <span class="text-white/40">Labor replaced by AI</span>
+                            <span id="out-labor" class="font-mono font-medium text-mint-400">$3,960,320</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm pb-3.5 border-b border-white/[0.04]">
+                            <span class="text-white/40">Slate platform cost</span>
+                            <span id="out-cost" class="font-mono font-medium text-coral-400">-$594,048</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm pt-1">
+                            <span class="text-white font-semibold">Net savings</span>
+                            <span id="out-net" class="text-xl font-display font-bold text-mint-400">$3,366,272</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Impact metrics -->
+                <div class="glass-card rounded-2xl p-7">
+                    <h4 class="font-display font-bold mb-5">Impact</h4>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="text-center p-4 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+                            <div id="out-ftes" class="text-2xl font-display font-extrabold text-accent-400 stat-num">54</div>
+                            <div class="text-[11px] text-white/30 mt-1">FTEs Replaced</div>
+                        </div>
+                        <div class="text-center p-4 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+                            <div id="out-roi" class="text-2xl font-display font-extrabold text-mint-400 stat-num">5.7x</div>
+                            <div class="text-[11px] text-white/30 mt-1">ROI Multiple</div>
+                        </div>
+                        <div class="text-center p-4 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+                            <div id="out-payback" class="text-2xl font-display font-extrabold text-white stat-num">64</div>
+                            <div class="text-[11px] text-white/30 mt-1">Days to Payback</div>
+                        </div>
+                        <div class="text-center p-4 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+                            <div id="out-hours" class="text-2xl font-display font-extrabold text-purple-400 stat-num">112K</div>
+                            <div class="text-[11px] text-white/30 mt-1">Hours Freed/Year</div>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="#demo" class="block w-full bg-accent-600 hover:bg-accent-500 text-white font-bold text-center px-8 py-5 rounded-2xl transition-all text-lg">
+                    Get Your Custom ROI Report
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== HOW IT WORKS ==================== -->
+<section class="py-28" style="background: #080C14;">
+    <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-20 reveal">
+            <p class="text-accent-400 text-sm font-semibold uppercase tracking-widest mb-4">Process</p>
+            <h2 class="font-display text-4xl md:text-[3.5rem] font-extrabold tracking-tight mb-5">Deploy in weeks, not years.</h2>
+            <p class="text-white/40 text-lg max-w-2xl mx-auto">No rip-and-replace. Slate agents integrate alongside your existing systems.</p>
+        </div>
+        <div class="grid md:grid-cols-4 gap-8 reveal">
+            <div class="text-center">
+                <div class="w-14 h-14 rounded-2xl bg-accent-500/10 border border-accent-500/20 flex items-center justify-center mx-auto mb-5">
+                    <span class="font-display text-xl font-bold text-accent-400">1</span>
+                </div>
+                <h3 class="font-display font-bold text-lg mb-2">Connect</h3>
+                <p class="text-white/35 text-sm leading-relaxed">Integrate with your EHR, PM system, and payer portals via FHIR, HL7, and direct APIs.</p>
+            </div>
+            <div class="text-center">
+                <div class="w-14 h-14 rounded-2xl bg-accent-500/10 border border-accent-500/20 flex items-center justify-center mx-auto mb-5">
+                    <span class="font-display text-xl font-bold text-accent-400">2</span>
+                </div>
+                <h3 class="font-display font-bold text-lg mb-2">Learn</h3>
+                <p class="text-white/35 text-sm leading-relaxed">Agents observe your workflows for 2 weeks, learning payer rules, coding patterns, and preferences.</p>
+            </div>
+            <div class="text-center">
+                <div class="w-14 h-14 rounded-2xl bg-accent-500/10 border border-accent-500/20 flex items-center justify-center mx-auto mb-5">
+                    <span class="font-display text-xl font-bold text-accent-400">3</span>
+                </div>
+                <h3 class="font-display font-bold text-lg mb-2">Deploy</h3>
+                <p class="text-white/35 text-sm leading-relaxed">Agents process live tasks with human oversight. Accuracy compounds daily as they handle more volume.</p>
+            </div>
+            <div class="text-center">
+                <div class="w-14 h-14 rounded-2xl bg-accent-500/10 border border-accent-500/20 flex items-center justify-center mx-auto mb-5">
+                    <span class="font-display text-xl font-bold text-accent-400">4</span>
+                </div>
+                <h3 class="font-display font-bold text-lg mb-2">Automate</h3>
+                <p class="text-white/35 text-sm leading-relaxed">Go fully autonomous. Agents run 24/7 across departments. Humans monitor exceptions only.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== PRICING ==================== -->
+<section id="pricing" class="py-28 relative" style="background: linear-gradient(180deg, #0C1322 0%, #080C14 100%);">
+    <div class="max-w-5xl mx-auto px-6 text-center reveal">
+        <p class="text-accent-400 text-sm font-semibold uppercase tracking-widest mb-4">Pricing</p>
+        <h2 class="font-display text-4xl md:text-[3.5rem] font-extrabold tracking-tight mb-6">You keep most of the savings.</h2>
+        <p class="text-white/40 text-xl max-w-3xl mx-auto mb-14 leading-relaxed">
+            Slate costs 15% of the labor it replaces. Save $4M in admin salaries &mdash;
+            pay us $600K. You keep <span class="text-mint-400 font-semibold">$3.4M</span>.
+            If we don't deliver savings, you don't pay.
+        </p>
+        <div class="grid md:grid-cols-3 gap-5 max-w-4xl mx-auto">
+            <div class="glass-card rounded-2xl p-8 transition-all duration-300">
+                <div class="text-5xl font-display font-extrabold text-accent-400 mb-3">15%</div>
+                <div class="text-white/60 font-semibold">Of labor replaced</div>
+                <div class="text-white/30 text-sm mt-3">Our fee. Directly tied to your outcomes. We only win when you win.</div>
+            </div>
+            <div class="glass-card rounded-2xl p-8 transition-all duration-300 glow-green">
+                <div class="text-5xl font-display font-extrabold text-mint-400 mb-3">85%</div>
+                <div class="text-white/60 font-semibold">You keep</div>
+                <div class="text-white/30 text-sm mt-3">Pure bottom-line improvement. Starting from month one.</div>
+            </div>
+            <div class="glass-card rounded-2xl p-8 transition-all duration-300">
+                <div class="text-5xl font-display font-extrabold text-white mb-3">$0</div>
+                <div class="text-white/60 font-semibold">If no savings</div>
+                <div class="text-white/30 text-sm mt-3">Performance guarantee. Zero risk to your organization.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== CTA ==================== -->
+<section id="demo" class="py-28" style="background: #080C14;">
+    <div class="max-w-4xl mx-auto px-6 text-center reveal">
+        <h2 class="font-display text-4xl md:text-6xl font-extrabold tracking-tight mb-6 leading-tight">
+            Ready to wipe the<br><span class="grad-text">slate clean?</span>
+        </h2>
+        <p class="text-white/40 text-xl mb-12 max-w-2xl mx-auto leading-relaxed">
+            Get a custom ROI report for your organization. See exactly which admin roles
+            Slate replaces and how much you keep in year one.
+        </p>
+        <div class="max-w-lg mx-auto">
+            <div class="flex gap-3">
+                <input type="email" placeholder="name@hospital.org" class="flex-1 px-5 py-4 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white placeholder-white/25 text-sm focus:outline-none focus:border-accent-500/40 focus:ring-1 focus:ring-accent-500/40 transition-all">
+                <button class="bg-accent-600 hover:bg-accent-500 text-white font-bold px-8 py-4 rounded-xl transition-all whitespace-nowrap text-sm">
+                    Get Report
+                </button>
+            </div>
+            <p class="text-white/20 text-xs mt-3">No commitment. Custom savings analysis delivered within 24 hours.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== FOOTER ==================== -->
+<footer class="border-t border-white/[0.04] py-10" style="background: #080C14;">
+    <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-2">
+            <div class="w-6 h-6 rounded-md bg-gradient-to-br from-accent-500 to-accent-600 flex items-center justify-center">
+                <svg class="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </div>
+            <span class="font-display font-bold text-sm text-white/60">slate<span class="text-accent-400">health</span></span>
+        </div>
+        <div class="text-white/20 text-xs text-center md:text-right">
+            Data: BLS, CMS, AMA, CAQH, AHA, Center for American Progress, Himmelstein &amp; Woolhandler
+        </div>
+    </div>
+</footer>
+
+<!-- ==================== SCRIPTS ==================== -->
+<script>
+// ===== CHART =====
+const years = [1970,1973,1976,1979,1982,1985,1988,1991,1994,1997,2000,2003,2006,2009,2012,2015,2018,2021,2024];
+const mgrs  = [0,20,50,80,120,200,400,800,1400,1800,2000,2200,2500,2700,2800,3000,3200,3800,4800];
+const docs  = [0,5,10,15,20,30,40,55,70,85,100,115,130,145,155,165,175,190,200];
+
+const ctx = document.getElementById('growthChart').getContext('2d');
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: years,
+        datasets: [{
+            label: 'Healthcare Managers',
+            data: mgrs,
+            borderColor: '#818CF8',
+            backgroundColor: 'rgba(99,102,241,0.06)',
+            fill: true, tension: 0.4, borderWidth: 2.5,
+            pointRadius: 0, pointHoverRadius: 5, pointHoverBackgroundColor: '#818CF8',
+        },{
+            label: 'Physicians',
+            data: docs,
+            borderColor: '#FB7185',
+            backgroundColor: 'rgba(244,63,94,0.06)',
+            fill: true, tension: 0.4, borderWidth: 2.5,
+            pointRadius: 0, pointHoverRadius: 5, pointHoverBackgroundColor: '#FB7185',
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                backgroundColor: 'rgba(8,12,20,0.95)',
+                borderColor: 'rgba(255,255,255,0.08)',
+                borderWidth: 1,
+                titleColor: 'rgba(255,255,255,0.5)',
+                bodyColor: 'rgba(255,255,255,0.85)',
+                padding: 14, cornerRadius: 10,
+                titleFont: { family: "'Inter', sans-serif", size: 12 },
+                bodyFont: { family: "'JetBrains Mono', monospace", size: 12 },
+                callbacks: {
+                    label: ctx => ctx.dataset.label + ': +' + ctx.parsed.y.toLocaleString() + '%'
+                }
+            }
+        },
+        scales: {
+            x: {
+                grid: { color: 'rgba(255,255,255,0.03)', drawBorder: false },
+                ticks: { color: 'rgba(255,255,255,0.25)', font: { size: 11 } }
+            },
+            y: {
+                grid: { color: 'rgba(255,255,255,0.03)', drawBorder: false },
+                ticks: {
+                    color: 'rgba(255,255,255,0.25)',
+                    font: { size: 11, family: "'JetBrains Mono', monospace" },
+                    callback: v => '+' + v.toLocaleString() + '%'
+                },
+                min: 0, max: 5000,
+            }
+        }
+    }
+});
+
+// ===== ROI CALCULATOR =====
+const presets = {
+    clinic:   { staff: 5,  salary: 48000  },
+    practice: { staff: 20, salary: 56000  },
+    hospital: { staff: 64, salary: 72800  },
+};
+
+function setOrg(type) {
+    const p = presets[type];
+    document.getElementById('inp-staff').value  = p.staff;
+    document.getElementById('inp-salary').value = p.salary;
+    document.querySelectorAll('.org-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('org-' + type).classList.add('active');
+    calc();
+}
+
+function fmt(n) { return '$' + Math.round(n).toLocaleString(); }
+
+function calc() {
+    const staff = +document.getElementById('inp-staff').value;
+    const salary = +document.getElementById('inp-salary').value;
+    const rate = +document.getElementById('inp-rate').value / 100;
+
+    let taskPct = 0;
+    document.querySelectorAll('.task-check').forEach(c => {
+        if (c.checked) taskPct += +c.dataset.pct;
+    });
+    taskPct /= 100;
+
+    const spend = staff * salary;
+    const automatable = spend * taskPct;
+    const labor = automatable * rate;
+    const slateCost = labor * 0.15;
+    const net = labor - slateCost;
+    const ftes = Math.round(staff * taskPct * rate);
+    const roi = slateCost > 0 ? net / slateCost : 0;
+    const payback = net > 0 ? Math.round((slateCost / net) * 365) : 999;
+    const hours = ftes * 2080;
+
+    // Labels
+    document.getElementById('lbl-staff').textContent = staff;
+    document.getElementById('lbl-salary').textContent = fmt(salary);
+    document.getElementById('lbl-rate').textContent = Math.round(rate * 100) + '%';
+
+    // Results
+    document.getElementById('out-total').textContent = fmt(net);
+    document.getElementById('out-spend').textContent = fmt(spend);
+    document.getElementById('out-auto').textContent = fmt(automatable);
+    document.getElementById('out-labor').textContent = fmt(labor);
+    document.getElementById('out-cost').textContent = '-' + fmt(slateCost);
+    document.getElementById('out-net').textContent = fmt(net);
+    document.getElementById('out-ftes').textContent = ftes;
+    document.getElementById('out-roi').textContent = roi.toFixed(1) + 'x';
+    document.getElementById('out-payback').textContent = payback;
+    document.getElementById('out-hours').textContent = hours >= 1000 ? Math.round(hours/1000) + 'K' : hours.toLocaleString();
+}
+
+calc();
+
+// ===== SCROLL REVEAL =====
+const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>

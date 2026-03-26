@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Slate Health - Business Proposal</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+    @page {
+        size: A4;
+        margin: 0;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+        font-family: 'Inter', -apple-system, sans-serif;
+        color: #1a1a2e;
+        background: #fff;
+        font-size: 11px;
+        line-height: 1.5;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+    .font-display { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+    /* Page system */
+    .page {
+        width: 210mm;
+        min-height: 297mm;
+        padding: 20mm 22mm;
+        position: relative;
+        page-break-after: always;
+        overflow: hidden;
+    }
+    .page:last-child { page-break-after: avoid; }
+
+    /* Cover page */
+    .cover {
+        background: linear-gradient(135deg, #080C14 0%, #111B30 40%, #182440 100%);
+        color: white;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 0;
+        position: relative;
+        overflow: hidden;
+    }
+    .cover::before {
+        content: '';
+        position: absolute;
+        top: -30%;
+        right: -20%;
+        width: 80%;
+        height: 80%;
+        background: radial-gradient(ellipse, rgba(99,102,241,0.15) 0%, transparent 60%);
+        pointer-events: none;
+    }
+    .cover::after {
+        content: '';
+        position: absolute;
+        bottom: -20%;
+        left: -10%;
+        width: 60%;
+        height: 60%;
+        background: radial-gradient(ellipse, rgba(16,185,129,0.08) 0%, transparent 60%);
+        pointer-events: none;
+    }
+    .cover-inner {
+        padding: 28mm 28mm 20mm;
+        position: relative;
+        z-index: 1;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    .cover-footer {
+        padding: 12mm 28mm;
+        border-top: 1px solid rgba(255,255,255,0.08);
+        position: relative;
+        z-index: 1;
+    }
+    .accent-bar {
+        width: 50px;
+        height: 4px;
+        background: linear-gradient(90deg, #6366F1, #818CF8);
+        border-radius: 2px;
+        margin-bottom: 20px;
+    }
+
+    /* Headers */
+    h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; }
+    h2 { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 22px; color: #1a1a2e; margin-bottom: 6px; }
+    h3 { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 14px; color: #1a1a2e; margin-bottom: 4px; }
+    h4 { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; font-size: 12px; color: #4F46E5; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; }
+
+    /* Section labels */
+    .section-num {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-weight: 800;
+        font-size: 11px;
+        color: #6366F1;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        margin-bottom: 8px;
+    }
+    .section-desc {
+        font-size: 12px;
+        color: #64748b;
+        max-width: 480px;
+        line-height: 1.6;
+        margin-bottom: 20px;
+    }
+    .accent-line {
+        width: 40px;
+        height: 3px;
+        background: linear-gradient(90deg, #6366F1, #818CF8);
+        border-radius: 2px;
+        margin-bottom: 16px;
+    }
+
+    /* Tables */
+    table { width: 100%; border-collapse: collapse; font-size: 10.5px; margin-bottom: 16px; }
+    th {
+        background: #F1F0FB;
+        color: #4F46E5;
+        font-weight: 700;
+        text-align: left;
+        padding: 8px 12px;
+        font-size: 9.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        border-bottom: 2px solid #E0DEF7;
+    }
+    td {
+        padding: 8px 12px;
+        border-bottom: 1px solid #f1f5f9;
+        vertical-align: top;
+    }
+    tr:last-child td { border-bottom: none; }
+    .table-highlight td { background: #F8FAF5; font-weight: 600; }
+
+    /* Stat cards */
+    .stat-grid { display: grid; gap: 10px; }
+    .stat-card {
+        background: #F8FAFC;
+        border: 1px solid #E2E8F0;
+        border-radius: 10px;
+        padding: 14px 16px;
+        text-align: center;
+    }
+    .stat-card.accent {
+        background: linear-gradient(135deg, #EEF2FF, #F0EBFF);
+        border-color: #C7D2FE;
+    }
+    .stat-card.green {
+        background: linear-gradient(135deg, #ECFDF5, #F0FFF4);
+        border-color: #A7F3D0;
+    }
+    .stat-card.red {
+        background: linear-gradient(135deg, #FFF1F2, #FEF2F2);
+        border-color: #FECDD3;
+    }
+    .stat-num {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-weight: 800;
+        font-size: 26px;
+        line-height: 1.1;
+    }
+    .stat-label {
+        font-size: 9.5px;
+        color: #64748b;
+        margin-top: 4px;
+        line-height: 1.3;
+    }
+
+    /* Chart containers */
+    .chart-box {
+        background: #FAFBFC;
+        border: 1px solid #E2E8F0;
+        border-radius: 10px;
+        padding: 16px;
+        margin-bottom: 16px;
+    }
+    .chart-title {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-weight: 700;
+        font-size: 12px;
+        margin-bottom: 10px;
+        color: #1a1a2e;
+    }
+
+    /* Callout boxes */
+    .callout {
+        background: linear-gradient(135deg, #EEF2FF, #F5F3FF);
+        border-left: 4px solid #6366F1;
+        border-radius: 0 8px 8px 0;
+        padding: 14px 16px;
+        margin: 14px 0;
+        font-size: 11px;
+        line-height: 1.6;
+    }
+    .callout-green {
+        background: linear-gradient(135deg, #ECFDF5, #F0FFF4);
+        border-left-color: #10B981;
+    }
+    .callout-red {
+        background: linear-gradient(135deg, #FFF1F2, #FEF2F2);
+        border-left-color: #F43F5E;
+    }
+    .callout strong { color: #1a1a2e; }
+
+    /* Two column layout */
+    .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .cols-3-2 { display: grid; grid-template-columns: 3fr 2fr; gap: 16px; }
+    .cols-2-3 { display: grid; grid-template-columns: 2fr 3fr; gap: 16px; }
+
+    /* Footer */
+    .page-footer {
+        position: absolute;
+        bottom: 10mm;
+        left: 22mm;
+        right: 22mm;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 8.5px;
+        color: #94a3b8;
+        padding-top: 8px;
+        border-top: 1px solid #f1f5f9;
+    }
+    .page-footer .logo-small {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-weight: 700;
+        font-size: 9px;
+        color: #94a3b8;
+    }
+    .page-footer .logo-small span { color: #6366F1; }
+
+    /* Watermark classification */
+    .classification {
+        font-size: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        color: rgba(255,255,255,0.3);
+    }
+
+    /* Misc */
+    .text-indigo { color: #6366F1; }
+    .text-green { color: #10B981; }
+    .text-red { color: #F43F5E; }
+    .text-muted { color: #64748b; }
+    .text-xs { font-size: 9.5px; }
+    .font-bold { font-weight: 700; }
+    .mb-4 { margin-bottom: 4px; }
+    .mb-8 { margin-bottom: 8px; }
+    .mb-12 { margin-bottom: 12px; }
+    .mb-16 { margin-bottom: 16px; }
+    .mb-20 { margin-bottom: 20px; }
+    .mt-8 { margin-top: 8px; }
+    .mt-12 { margin-top: 12px; }
+    .mt-16 { margin-top: 16px; }
+
+    /* Comparison bar chart CSS */
+    .bar-row { display: flex; align-items: center; margin-bottom: 8px; }
+    .bar-label { width: 100px; font-size: 10px; font-weight: 600; flex-shrink: 0; }
+    .bar-track { flex: 1; height: 22px; background: #F1F5F9; border-radius: 6px; overflow: hidden; position: relative; }
+    .bar-fill { height: 100%; border-radius: 6px; display: flex; align-items: center; padding-left: 8px; font-size: 9px; font-weight: 700; color: white; }
+    .bar-fill.indigo { background: linear-gradient(90deg, #6366F1, #818CF8); }
+    .bar-fill.rose { background: linear-gradient(90deg, #F43F5E, #FB7185); }
+    .bar-fill.emerald { background: linear-gradient(90deg, #10B981, #34D399); }
+    .bar-fill.amber { background: linear-gradient(90deg, #F59E0B, #FBBF24); }
+
+    /* Agent cards for proposal */
+    .agent-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .agent-item {
+        background: #F8FAFC;
+        border: 1px solid #E2E8F0;
+        border-radius: 8px;
+        padding: 12px 14px;
+    }
+    .agent-item h3 { font-size: 12px; margin-bottom: 3px; }
+    .agent-item p { font-size: 9.5px; color: #64748b; line-height: 1.45; }
+    .agent-tag {
+        display: inline-block;
+        font-size: 8.5px;
+        font-weight: 600;
+        padding: 2px 8px;
+        border-radius: 20px;
+        margin-top: 6px;
+        margin-right: 4px;
+    }
+    .tag-indigo { background: #EEF2FF; color: #4F46E5; }
+    .tag-green { background: #ECFDF5; color: #059669; }
+    .tag-blue { background: #EFF6FF; color: #2563EB; }
+    .tag-cyan { background: #ECFEFF; color: #0891B2; }
+    .tag-purple { background: #F5F3FF; color: #7C3AED; }
+    .tag-rose { background: #FFF1F2; color: #E11D48; }
+
+    /* TOC */
+    .toc-item {
+        display: flex;
+        align-items: baseline;
+        padding: 10px 0;
+        border-bottom: 1px solid #F1F5F9;
+    }
+    .toc-num {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-weight: 800;
+        font-size: 14px;
+        color: #6366F1;
+        width: 36px;
+        flex-shrink: 0;
+    }
+    .toc-title {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-weight: 600;
+        font-size: 13px;
+        color: #1a1a2e;
+    }
+
+    /* Financial model row highlight */
+    .fin-total { background: #F0FFF4 !important; }
+    .fin-total td { font-weight: 700 !important; color: #059669; border-top: 2px solid #A7F3D0; }
+</style>
+</head>
+<body>
+
+<!-- ============================================================ -->
+<!-- PAGE 1: COVER -->
+<!-- ============================================================ -->
+<div class="page cover">
+    <div class="cover-inner">
+        <div class="classification mb-20">CONFIDENTIAL &mdash; INTERNAL USE ONLY</div>
+        <div class="accent-bar"></div>
+        <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 20px; margin-bottom: 6px;">
+            slate<span style="color: #818CF8;">health</span>
+        </div>
+        <h1 style="font-size: 44px; line-height: 1.1; margin-top: 24px; margin-bottom: 16px; color: white;">
+            Business Proposal &<br>Market Opportunity
+        </h1>
+        <p style="font-size: 20px; color: rgba(255,255,255,0.5); max-width: 420px; line-height: 1.45; font-weight: 400;">
+            AI Agents That Replace Healthcare Administrators
+        </p>
+
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 48px; max-width: 520px;">
+            <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px; text-align: center;">
+                <div style="font-family: 'Plus Jakarta Sans'; font-weight: 800; font-size: 22px; color: #818CF8;">$496B</div>
+                <div style="font-size: 9px; color: rgba(255,255,255,0.35); margin-top: 3px;">Annual Admin Waste</div>
+            </div>
+            <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px; text-align: center;">
+                <div style="font-family: 'Plus Jakarta Sans'; font-weight: 800; font-size: 22px; color: #FB7185;">4,800%</div>
+                <div style="font-size: 9px; color: rgba(255,255,255,0.35); margin-top: 3px;">Admin Growth</div>
+            </div>
+            <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px; text-align: center;">
+                <div style="font-family: 'Plus Jakarta Sans'; font-weight: 800; font-size: 22px; color: white;">10:1</div>
+                <div style="font-size: 9px; color: rgba(255,255,255,0.35); margin-top: 3px;">Admin-to-Doctor</div>
+            </div>
+            <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 14px; text-align: center;">
+                <div style="font-family: 'Plus Jakarta Sans'; font-weight: 800; font-size: 22px; color: #34D399;">$22B+</div>
+                <div style="font-size: 9px; color: rgba(255,255,255,0.35); margin-top: 3px;">Revenue TAM</div>
+            </div>
+        </div>
+    </div>
+    <div class="cover-footer" style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <div style="font-size: 10px; color: rgba(255,255,255,0.4); font-weight: 500;">Prepared: March 2026</div>
+            <div style="font-size: 10px; color: rgba(255,255,255,0.4); font-weight: 500;">Classification: Confidential &mdash; Internal Use Only</div>
+        </div>
+        <div style="font-size: 10px; color: rgba(255,255,255,0.3);">Version 1.0</div>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE 2: TABLE OF CONTENTS -->
+<!-- ============================================================ -->
+<div class="page">
+    <div class="accent-line"></div>
+    <h2 style="font-size: 28px; margin-bottom: 32px;">Contents</h2>
+    <div>
+        <div class="toc-item"><div class="toc-num">01</div><div class="toc-title">Executive Summary</div></div>
+        <div class="toc-item"><div class="toc-num">02</div><div class="toc-title">Market Problem: The Healthcare Admin Crisis</div></div>
+        <div class="toc-item"><div class="toc-num">03</div><div class="toc-title">Product: Six AI Agents</div></div>
+        <div class="toc-item"><div class="toc-num">04</div><div class="toc-title">Total Addressable Market (TAM/SAM/SOM)</div></div>
+        <div class="toc-item"><div class="toc-num">05</div><div class="toc-title">Competitive Landscape</div></div>
+        <div class="toc-item"><div class="toc-num">06</div><div class="toc-title">Business Model & Pricing</div></div>
+        <div class="toc-item"><div class="toc-num">07</div><div class="toc-title">Financial Model: 5-Year ARR Projections</div></div>
+        <div class="toc-item"><div class="toc-num">08</div><div class="toc-title">Unit Economics</div></div>
+        <div class="toc-item"><div class="toc-num">09</div><div class="toc-title">Go-to-Market Strategy</div></div>
+        <div class="toc-item"><div class="toc-num">10</div><div class="toc-title">Risk Analysis</div></div>
+    </div>
+    <div class="page-footer">
+        <div class="logo-small">slate<span>health</span></div>
+        <div>Confidential &mdash; Page 2</div>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE 3: EXECUTIVE SUMMARY -->
+<!-- ============================================================ -->
+<div class="page">
+    <div class="section-num">Section 01</div>
+    <div class="accent-line"></div>
+    <h2>Executive Summary</h2>
+    <div class="section-desc">Slate Health deploys AI agents that replace healthcare administrators &mdash; the fastest-growing, least productive cost center in American medicine.</div>
+
+    <div class="callout">
+        <strong>Core Thesis:</strong> Healthcare managers have grown 4,800% since 1970 while physicians grew just 200%. The US spends $496 billion per year on billing and insurance administration alone &mdash; more than the GDP of most countries. AI can now automate 70%+ of these tasks. Slate captures this opportunity by charging 15% of the labor it replaces, creating a $22B+ revenue TAM with zero-risk adoption for buyers.
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 20px 0;">
+        <div class="stat-card accent">
+            <div class="stat-num text-indigo">$1T</div>
+            <div class="stat-label">Annual US healthcare admin costs</div>
+        </div>
+        <div class="stat-card red">
+            <div class="stat-num text-red">$248B</div>
+            <div class="stat-label">Excess unnecessary admin waste</div>
+        </div>
+        <div class="stat-card green">
+            <div class="stat-num text-green">70%</div>
+            <div class="stat-label">Admin tasks automatable by AI (McKinsey)</div>
+        </div>
+        <div class="stat-card accent">
+            <div class="stat-num text-indigo">$22B+</div>
+            <div class="stat-label">Slate revenue TAM (US only)</div>
+        </div>
+    </div>
+
+    <h3 class="mt-16 mb-8">What We're Building</h3>
+    <p style="font-size: 11px; color: #475569; line-height: 1.65; margin-bottom: 14px;">
+        Slate Health is an AI-native platform that deploys six specialized agents to handle the core functions of healthcare administration: prior authorization, claims & billing, scheduling, eligibility verification, credentialing, and compliance reporting. Each agent replaces an entire department. They run 24/7, process thousands of transactions per hour, and improve continuously.
+    </p>
+
+    <h3 class="mb-8">Business Model</h3>
+    <p style="font-size: 11px; color: #475569; line-height: 1.65; margin-bottom: 14px;">
+        Performance-based pricing: Slate charges <strong>15% of the admin labor it replaces</strong>. Health systems keep 85% of the savings. If Slate doesn't deliver measurable savings, clients pay nothing. This eliminates adoption risk and aligns incentives directly with outcomes.
+    </p>
+
+    <h3 class="mb-8">Market Timing</h3>
+    <div class="cols mt-8">
+        <div>
+            <p style="font-size: 10.5px; color: #475569; line-height: 1.6;">
+                <strong style="color: #1a1a2e;">AI Capability Inflection:</strong> Healthcare AI market is $37B in 2025, projected $500B+ by 2034 (37% CAGR). AI now handles 70%+ of revenue cycle tasks autonomously. 54% of all digital health VC funding in 2025 went to AI companies.
+            </p>
+        </div>
+        <div>
+            <p style="font-size: 10.5px; color: #475569; line-height: 1.6;">
+                <strong style="color: #1a1a2e;">Regulatory Tailwinds:</strong> CMS electronic prior authorization mandates take effect 2027. Hospital admin expenses doubled from $367B (2011) to $687B (2023). Health systems are desperate for cost reduction.
+            </p>
+        </div>
+    </div>
+
+    <div class="page-footer">
+        <div class="logo-small">slate<span>health</span></div>
+        <div>Confidential &mdash; Page 3</div>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE 4: THE PROBLEM -->
+<!-- ============================================================ -->
+<div class="page">
+    <div class="section-num">Section 02</div>
+    <div class="accent-line"></div>
+    <h2>Market Problem: The Healthcare Admin Crisis</h2>
+    <div class="section-desc">Since 1970, American healthcare added administrators 24x faster than physicians. The bureaucracy is now the largest cost center in the system.</div>
+
+    <div class="cols-3-2">
+        <div>
+            <div class="chart-box">
+                <div class="chart-title">Growth of Healthcare Managers vs. Physicians (1970&ndash;2024)</div>
+                <div style="height: 220px;"><canvas id="chartGrowth"></canvas></div>
+                <div style="display: flex; gap: 16px; margin-top: 8px;">
+                    <div style="display: flex; align-items: center; gap: 5px;"><div style="width: 10px; height: 10px; border-radius: 50%; background: #6366F1;"></div><span style="font-size: 9px; color: #94a3b8;">Healthcare Managers (+4,800%)</span></div>
+                    <div style="display: flex; align-items: center; gap: 5px;"><div style="width: 10px; height: 10px; border-radius: 50%; background: #FB7185;"></div><span style="font-size: 9px; color: #94a3b8;">Physicians (+200%)</span></div>
+                </div>
+            </div>
+            <div style="font-size: 8.5px; color: #94a3b8; margin-top: -10px; margin-bottom: 12px;">
+                Source: Current Population Survey, Bureau of Labor Statistics & National Center for Health Statistics (Himmelstein & Woolhandler)
+            </div>
+        </div>
+        <div>
+            <div class="stat-card red mb-8" style="padding: 16px;">
+                <div class="stat-num text-red" style="font-size: 30px;">$1.1T</div>
+                <div class="stat-label" style="font-size: 10px;">Total annual admin costs &mdash; more than Indonesia's GDP</div>
+            </div>
+            <div class="stat-card accent mb-8" style="padding: 16px;">
+                <div class="stat-num text-indigo" style="font-size: 30px;">10 : 1</div>
+                <div class="stat-label" style="font-size: 10px;">Administrators per physician in US healthcare</div>
+            </div>
+            <div class="stat-card mb-8" style="padding: 16px;">
+                <div class="stat-num" style="font-size: 30px; color: #1a1a2e;">5x</div>
+                <div class="stat-label" style="font-size: 10px;">US admin spend per capita vs. peer nations ($1,078 vs ~$200)</div>
+            </div>
+            <div class="stat-card green" style="padding: 16px;">
+                <div class="stat-num text-green" style="font-size: 30px;">2.7%</div>
+                <div class="stat-label" style="font-size: 10px;">Canada's admin rate vs. 15-25% in the US</div>
+            </div>
+        </div>
+    </div>
+
+    <h3 class="mt-16 mb-8">Where the $496B Goes</h3>
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+        <div class="stat-card" style="padding: 14px;">
+            <div class="stat-num text-red" style="font-size: 22px;">$83B</div>
+            <div class="stat-label"><strong style="color: #1a1a2e;">Routine admin transactions.</strong> Eligibility, claims, prior auth, payment posting. Providers bear 97%.</div>
+        </div>
+        <div class="stat-card" style="padding: 14px;">
+            <div class="stat-num text-indigo" style="font-size: 22px;">$150B</div>
+            <div class="stat-label"><strong style="color: #1a1a2e;">No-show losses.</strong> 18-23% no-show rate. AI scheduling cuts this 50-70%.</div>
+        </div>
+        <div class="stat-card" style="padding: 14px;">
+            <div class="stat-num" style="font-size: 22px; color: #0891B2;">$38.6B</div>
+            <div class="stat-label"><strong style="color: #1a1a2e;">Compliance costs.</strong> 59 FTEs per hospital on compliance. $7.6M/year each.</div>
+        </div>
+    </div>
+
+    <div class="callout-red mt-12" style="font-size: 10.5px;">
+        <strong>The inefficiency is staggering:</strong> 11.8% of claims are denied. 81.7% are overturned on appeal. Each denial costs $57 to rework. Prior auth alone consumes 14 hours/week per physician practice. The system generates $248B in excess, unnecessary administrative costs every year.
+    </div>
+
+    <div class="page-footer">
+        <div class="logo-small">slate<span>health</span></div>
+        <div>Confidential &mdash; Page 4</div>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE 5: THE PRODUCT -->
+<!-- ============================================================ -->
+<div class="page">
+    <div class="section-num">Section 03</div>
+    <div class="accent-line"></div>
+    <h2>Product: Six AI Agents</h2>
+    <div class="section-desc">Each Slate agent replaces an entire administrative department. They operate 24/7, process thousands of transactions per hour, and compound in accuracy daily.</div>
+
+    <div class="agent-grid">
+        <div class="agent-item">
+            <h3 style="color: #4F46E5;">Prior Authorization Agent</h3>
+            <p>Submits, tracks, and appeals prior authorizations. Gathers clinical documentation, monitors approval status, manages renewals and expirations automatically.</p>
+            <span class="agent-tag tag-indigo">14 hrs/week saved per practice</span>
+            <span class="agent-tag tag-indigo">81.7% appeal win rate</span>
+        </div>
+        <div class="agent-item">
+            <h3 style="color: #059669;">Claims & Billing Agent</h3>
+            <p>Codes encounters (ICD-10, CPT, HCPCS), submits claims, posts payments, catches errors pre-submission, manages denials and files appeals.</p>
+            <span class="agent-tag tag-green">$57/denial eliminated</span>
+            <span class="agent-tag tag-green">40-60% denial reduction</span>
+        </div>
+        <div class="agent-item">
+            <h3 style="color: #2563EB;">Scheduling & Access Agent</h3>
+            <p>Manages appointments, waitlists, referral coordination, and no-show prediction. AI outreach reduces no-shows 50-70%. 24/7 patient access.</p>
+            <span class="agent-tag tag-blue">$150B no-show market</span>
+            <span class="agent-tag tag-blue">24/7 availability</span>
+        </div>
+        <div class="agent-item">
+            <h3 style="color: #0891B2;">Eligibility Verification Agent</h3>
+            <p>Real-time insurance verification, benefits confirmation, network status checks, and multi-plan coordination of benefits. Instant results.</p>
+            <span class="agent-tag tag-cyan">$14 &rarr; &lt;$1 per check</span>
+            <span class="agent-tag tag-cyan">93% faster</span>
+        </div>
+        <div class="agent-item">
+            <h3 style="color: #7C3AED;">Credentialing Agent</h3>
+            <p>Provider credentialing and payer enrollment in days, not months. CAQH profile management, license renewals, malpractice verification.</p>
+            <span class="agent-tag tag-purple">90 &rarr; 14 days</span>
+            <span class="agent-tag tag-purple">$3,500 &rarr; $200/provider</span>
+        </div>
+        <div class="agent-item">
+            <h3 style="color: #E11D48;">Compliance & Reporting Agent</h3>
+            <p>Continuous HIPAA monitoring, quality measure reporting (HEDIS, MIPS, CMS Stars), documentation audits, regulatory compliance tracking.</p>
+            <span class="agent-tag tag-rose">59 FTEs &rarr; 3 FTEs</span>
+            <span class="agent-tag tag-rose">$7.6M saved per hospital</span>
+        </div>
+    </div>
+
+    <h3 class="mt-16 mb-8">Deployment Model</h3>
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
+        <div style="text-align: center; padding: 10px;">
+            <div style="width: 36px; height: 36px; border-radius: 8px; background: #EEF2FF; border: 1px solid #C7D2FE; display: flex; align-items: center; justify-content: center; margin: 0 auto 6px; font-family: 'Plus Jakarta Sans'; font-weight: 800; color: #6366F1; font-size: 14px;">1</div>
+            <div style="font-weight: 700; font-size: 11px; margin-bottom: 3px;">Connect</div>
+            <div style="font-size: 9px; color: #94a3b8; line-height: 1.4;">FHIR, HL7, and direct API integration with existing EHR and PM systems</div>
+        </div>
+        <div style="text-align: center; padding: 10px;">
+            <div style="width: 36px; height: 36px; border-radius: 8px; background: #EEF2FF; border: 1px solid #C7D2FE; display: flex; align-items: center; justify-content: center; margin: 0 auto 6px; font-family: 'Plus Jakarta Sans'; font-weight: 800; color: #6366F1; font-size: 14px;">2</div>
+            <div style="font-weight: 700; font-size: 11px; margin-bottom: 3px;">Learn</div>
+            <div style="font-size: 9px; color: #94a3b8; line-height: 1.4;">2-week observation of payer rules, coding patterns, and org preferences</div>
+        </div>
+        <div style="text-align: center; padding: 10px;">
+            <div style="width: 36px; height: 36px; border-radius: 8px; background: #EEF2FF; border: 1px solid #C7D2FE; display: flex; align-items: center; justify-content: center; margin: 0 auto 6px; font-family: 'Plus Jakarta Sans'; font-weight: 800; color: #6366F1; font-size: 14px;">3</div>
+            <div style="font-weight: 700; font-size: 11px; margin-bottom: 3px;">Deploy</div>
+            <div style="font-size: 9px; color: #94a3b8; line-height: 1.4;">Human-in-the-loop oversight while agents ramp accuracy on live tasks</div>
+        </div>
+        <div style="text-align: center; padding: 10px;">
+            <div style="width: 36px; height: 36px; border-radius: 8px; background: #EEF2FF; border: 1px solid #C7D2FE; display: flex; align-items: center; justify-content: center; margin: 0 auto 6px; font-family: 'Plus Jakarta Sans'; font-weight: 800; color: #6366F1; font-size: 14px;">4</div>
+            <div style="font-weight: 700; font-size: 11px; margin-bottom: 3px;">Automate</div>
+            <div style="font-size: 9px; color: #94a3b8; line-height: 1.4;">Fully autonomous 24/7 operations. Human supervisors handle exceptions only.</div>
+        </div>
+    </div>
+
+    <div class="page-footer">
+        <div class="logo-small">slate<span>health</span></div>
+        <div>Confidential &mdash; Page 5</div>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE 6: TAM / SAM / SOM -->
+<!-- ============================================================ -->
+<div class="page">
+    <div class="section-num">Section 04</div>
+    <div class="accent-line"></div>
+    <h2>Total Addressable Market</h2>
+    <div class="section-desc">Slate targets the largest cost center in American healthcare. At a 15% take rate on automatable labor, the US revenue TAM exceeds $22 billion.</div>
+
+    <div class="cols-3-2">
+        <div>
+            <div class="chart-box">
+                <div class="chart-title">TAM / SAM / SOM Framework</div>
+                <div style="height: 230px;"><canvas id="chartTAM"></canvas></div>
+            </div>
+        </div>
+        <div>
+            <table>
+                <thead>
+                    <tr><th>Layer</th><th>Scope</th><th>Size</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><strong>TAM</strong></td><td>All US healthcare admin labor</td><td style="font-weight: 700; color: #4F46E5;">$350&ndash;500B</td></tr>
+                    <tr><td><strong>SAM</strong></td><td>Automatable admin tasks (50-70%)</td><td style="font-weight: 700; color: #4F46E5;">$150&ndash;250B</td></tr>
+                    <tr><td><strong>Revenue TAM</strong></td><td>Slate's 15% of SAM</td><td style="font-weight: 700; color: #10B981;">$22&ndash;37B</td></tr>
+                    <tr><td><strong>SOM (Yr 1-3)</strong></td><td>Hospital systems + mid-size practices</td><td style="font-weight: 700; color: #10B981;">$5&ndash;15B</td></tr>
+                </tbody>
+            </table>
+
+            <h3 class="mt-12 mb-8">US Healthcare Facilities</h3>
+            <table>
+                <thead>
+                    <tr><th>Facility Type</th><th>Count</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Hospitals</td><td style="font-weight: 600;">6,100</td></tr>
+                    <tr><td>Health systems / IDNs</td><td style="font-weight: 600;">576&ndash;800+</td></tr>
+                    <tr><td>Physician practices</td><td style="font-weight: 600;">395,000</td></tr>
+                    <tr><td>Ambulatory Surgery Centers</td><td style="font-weight: 600;">12,294</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <h3 class="mt-12 mb-8">Admin Spend by Facility Type</h3>
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+        <div class="stat-card" style="padding: 14px;">
+            <div class="stat-num" style="font-size: 22px; color: #1a1a2e;">$29.4M / hospital</div>
+            <div class="stat-label">Average annual admin expense per hospital. 300-370 admin FTEs each. Hospitals have more billing specialists than beds.</div>
+        </div>
+        <div class="stat-card" style="padding: 14px;">
+            <div class="stat-num" style="font-size: 22px; color: #1a1a2e;">$150K&ndash;$500K / practice</div>
+            <div class="stat-label">Admin spend per physician practice, varying by size. 60-70% of practice revenue goes to overhead; half is staff costs.</div>
+        </div>
+    </div>
+
+    <h3 class="mt-12 mb-8">Adjacent Market Sizes</h3>
+    <div class="bar-row"><div class="bar-label">RCM Outsourcing</div><div class="bar-track"><div class="bar-fill indigo" style="width: 85%;">$62-65B (11-18% CAGR)</div></div></div>
+    <div class="bar-row"><div class="bar-label">Healthcare AI</div><div class="bar-track"><div class="bar-fill emerald" style="width: 50%;">$37B &rarr; $500B+ by 2034</div></div></div>
+    <div class="bar-row"><div class="bar-label">Prior Auth SW</div><div class="bar-track"><div class="bar-fill amber" style="width: 30%;">$2.2B &rarr; $11B by 2033</div></div></div>
+    <div class="bar-row"><div class="bar-label">Healthcare SaaS</div><div class="bar-track"><div class="bar-fill rose" style="width: 52%;">$38.5B (10% CAGR)</div></div></div>
+
+    <div class="page-footer">
+        <div class="logo-small">slate<span>health</span></div>
+        <div>Confidential &mdash; Page 6</div>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE 7: COMPETITIVE LANDSCAPE -->
+<!-- ============================================================ -->
+<div class="page">
+    <div class="section-num">Section 05</div>
+    <div class="accent-line"></div>
+    <h2>Competitive Landscape</h2>
+    <div class="section-desc">The market has established incumbents and well-funded AI challengers. Slate's performance-based model and full-stack agent approach differentiates from all of them.</div>
+
+    <table style="font-size: 10px;">
+        <thead>
+            <tr><th>Company</th><th>Focus</th><th>Revenue / Funding</th><th>Valuation</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Waystar</strong></td>
+                <td>Cloud RCM platform</td>
+                <td>$1.1B revenue; IPO ($968M)</td>
+                <td style="font-weight: 600;">$4.7B mkt cap</td>
+                <td>Public (WAY)</td>
+            </tr>
+            <tr>
+                <td><strong>Thoughtful AI</strong></td>
+                <td>AI agents for RCM</td>
+                <td><strong style="color: #059669;">$100M ARR</strong> (2024)</td>
+                <td>Private</td>
+                <td>Active &mdash; closest comp</td>
+            </tr>
+            <tr>
+                <td><strong>AKASA</strong></td>
+                <td>AI RCM automation</td>
+                <td>$259M raised (Series C)</td>
+                <td>Not disclosed</td>
+                <td>Active</td>
+            </tr>
+            <tr>
+                <td><strong>Cohere Health</strong></td>
+                <td>AI prior authorization</td>
+                <td>$200M raised (Series C)</td>
+                <td>Not disclosed</td>
+                <td>Active</td>
+            </tr>
+            <tr>
+                <td><strong>Cedar</strong></td>
+                <td>Patient billing / engagement</td>
+                <td>$350M raised (Series D)</td>
+                <td style="font-weight: 600;">$3.2B</td>
+                <td>Active</td>
+            </tr>
+            <tr>
+                <td><strong>Hippocratic AI</strong></td>
+                <td>Healthcare AI agents</td>
+                <td>$404M raised (Series C)</td>
+                <td style="font-weight: 600;">$3.5B</td>
+                <td>Active</td>
+            </tr>
+            <tr>
+                <td><strong>symplr</strong></td>
+                <td>Healthcare ops (credentialing, compliance)</td>
+                <td>9/10 US hospitals</td>
+                <td>PE-backed</td>
+                <td>Incumbent &mdash; fragmented UX</td>
+            </tr>
+            <tr style="background: #FFF1F2;">
+                <td><strong style="color: #E11D48;">Olive AI</strong></td>
+                <td>RCM automation</td>
+                <td>$902M raised; <strong>shut down</strong></td>
+                <td style="color: #E11D48;">$4B peak &rarr; $0</td>
+                <td style="color: #E11D48;">Dead (Oct 2023)</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="callout mt-12" style="font-size: 10.5px;">
+        <strong>Key insight:</strong> Thoughtful AI proved $100M ARR is achievable in AI-for-admin. But most competitors focus on a single vertical (Cohere = prior auth, Cedar = billing). Slate's advantage is the <strong>full-stack, six-agent approach</strong> &mdash; one platform replaces the entire admin layer, not just one function. Combined with performance-based pricing (vs. SaaS seat fees), Slate de-risks adoption and captures more wallet share per customer.
+    </div>
+
+    <h3 class="mt-16 mb-8">Slate's Competitive Differentiation</h3>
+    <div class="cols">
+        <div>
+            <table style="font-size: 10px;">
+                <thead><tr><th>Dimension</th><th>Incumbents</th></tr></thead>
+                <tbody>
+                    <tr><td>Scope</td><td>Single function (billing OR auth OR credentialing)</td></tr>
+                    <tr><td>Pricing</td><td>SaaS per-seat or per-transaction fees</td></tr>
+                    <tr><td>Risk</td><td>Buyer bears implementation risk</td></tr>
+                    <tr><td>Architecture</td><td>Rules-based or narrow ML models</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div>
+            <table style="font-size: 10px;">
+                <thead><tr><th>Dimension</th><th style="color: #059669;">Slate Health</th></tr></thead>
+                <tbody>
+                    <tr><td>Scope</td><td style="font-weight: 600;">Full admin stack &mdash; 6 agents, all functions</td></tr>
+                    <tr><td>Pricing</td><td style="font-weight: 600;">15% of labor replaced (outcome-based)</td></tr>
+                    <tr><td>Risk</td><td style="font-weight: 600;">$0 if no savings &mdash; zero buyer risk</td></tr>
+                    <tr><td>Architecture</td><td style="font-weight: 600;">Agentic AI (LLM-powered autonomous agents)</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="page-footer">
+        <div class="logo-small">slate<span>health</span></div>
+        <div>Confidential &mdash; Page 7</div>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE 8: BUSINESS MODEL + PRICING -->
+<!-- ============================================================ -->
+<div class="page">
+    <div class="section-num">Section 06</div>
+    <div class="accent-line"></div>
+    <h2>Business Model & Pricing</h2>
+    <div class="section-desc">Slate aligns revenue directly with customer outcomes. We earn money only when our customers save money.</div>
+
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px;">
+        <div class="stat-card accent" style="padding: 18px;">
+            <div class="stat-num text-indigo" style="font-size: 36px;">15%</div>
+            <div class="stat-label" style="font-size: 11px;"><strong style="color: #1a1a2e;">Our fee.</strong> Of the admin labor Slate replaces. Tied to measurable outcomes.</div>
+        </div>
+        <div class="stat-card green" style="padding: 18px;">
+            <div class="stat-num text-green" style="font-size: 36px;">85%</div>
+            <div class="stat-label" style="font-size: 11px;"><strong style="color: #1a1a2e;">Client keeps.</strong> Pure bottom-line savings from month one.</div>
+        </div>
+        <div class="stat-card" style="padding: 18px;">
+            <div class="stat-num" style="font-size: 36px; color: #1a1a2e;">$0</div>
+            <div class="stat-label" style="font-size: 11px;"><strong style="color: #1a1a2e;">Performance guarantee.</strong> No savings = no payment. Zero risk.</div>
+        </div>
+    </div>
+
+    <h3 class="mb-8">Example: Mid-Size Hospital System (64 admin staff)</h3>
+    <table>
+        <thead><tr><th>Line Item</th><th style="text-align: right;">Amount</th></tr></thead>
+        <tbody>
+            <tr><td>Current admin labor spend (64 FTEs &times; $72,800)</td><td style="text-align: right; font-weight: 600;">$4,659,200</td></tr>
+            <tr><td>Automatable portion (100% of tasks selected)</td><td style="text-align: right;">$4,659,200</td></tr>
+            <tr><td>AI automation rate (85%)</td><td style="text-align: right;">$3,960,320</td></tr>
+            <tr><td>Slate platform cost (15% of savings)</td><td style="text-align: right; color: #E11D48;">($594,048)</td></tr>
+            <tr class="fin-total"><td>Net savings to hospital</td><td style="text-align: right; font-size: 14px;">$3,366,272</td></tr>
+        </tbody>
+    </table>
+
+    <div class="cols mt-16">
+        <div>
+            <h3 class="mb-8">Impact Metrics (Same Example)</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <div class="stat-card" style="padding: 12px;">
+                    <div class="stat-num text-indigo" style="font-size: 26px;">54</div>
+                    <div class="stat-label">FTEs Replaced</div>
+                </div>
+                <div class="stat-card" style="padding: 12px;">
+                    <div class="stat-num text-green" style="font-size: 26px;">5.7x</div>
+                    <div class="stat-label">ROI Multiple</div>
+                </div>
+                <div class="stat-card" style="padding: 12px;">
+                    <div class="stat-num" style="font-size: 26px; color: #1a1a2e;">64 days</div>
+                    <div class="stat-label">Payback Period</div>
+                </div>
+                <div class="stat-card" style="padding: 12px;">
+                    <div class="stat-num" style="font-size: 26px; color: #7C3AED;">112K</div>
+                    <div class="stat-label">Hours Freed / Year</div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <h3 class="mb-8">Why Performance-Based Wins</h3>
+            <div style="font-size: 10.5px; color: #475569; line-height: 1.7;">
+                <p style="margin-bottom: 8px;"><strong style="color: #1a1a2e;">1. Zero-risk adoption.</strong> CFOs don't need to justify upfront spend. If it doesn't work, they pay nothing. This compresses sales cycles from 12-18 months to 3-6 months.</p>
+                <p style="margin-bottom: 8px;"><strong style="color: #1a1a2e;">2. Higher ACV over time.</strong> As agents automate more tasks, the labor-replaced increases, and so does revenue &mdash; without upselling.</p>
+                <p style="margin-bottom: 8px;"><strong style="color: #1a1a2e;">3. Sticky by design.</strong> Once agents are processing claims and prior auths, switching costs are high. Net revenue retention should exceed 130%.</p>
+                <p><strong style="color: #1a1a2e;">4. Land and expand.</strong> Start with prior auth + billing (50% of admin time), expand to all six agents over 12 months.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-footer">
+        <div class="logo-small">slate<span>health</span></div>
+        <div>Confidential &mdash; Page 8</div>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE 9: FINANCIAL MODEL -->
+<!-- ============================================================ -->
+<div class="page">
+    <div class="section-num">Section 07</div>
+    <div class="accent-line"></div>
+    <h2>Financial Model: 5-Year ARR Projections</h2>
+    <div class="section-desc">Conservative base case with upside scenario. Assumes performance-based pricing at 15% of labor replaced, 6-12 month sales cycles, and land-and-expand motion.</div>
+
+    <div class="chart-box" style="margin-bottom: 16px;">
+        <div class="chart-title">Projected ARR Growth (Base vs. Upside)</div>
+        <div style="height: 200px;"><canvas id="chartARR"></canvas></div>
+    </div>
+
+    <h3 class="mb-8">Base Case Financial Model</h3>
+    <table style="font-size: 10px;">
+        <thead>
+            <tr><th></th><th style="text-align: right;">Year 1</th><th style="text-align: right;">Year 2</th><th style="text-align: right;">Year 3</th><th style="text-align: right;">Year 4</th><th style="text-align: right;">Year 5</th></tr>
+        </thead>
+        <tbody>
+            <tr><td><strong>New Customers</strong></td><td style="text-align: right;">8</td><td style="text-align: right;">35</td><td style="text-align: right;">100</td><td style="text-align: right;">280</td><td style="text-align: right;">600</td></tr>
+            <tr><td><strong>Total Customers</strong></td><td style="text-align: right;">8</td><td style="text-align: right;">42</td><td style="text-align: right;">138</td><td style="text-align: right;">400</td><td style="text-align: right;">950</td></tr>
+            <tr><td><strong>Avg ACV</strong></td><td style="text-align: right;">$150K</td><td style="text-align: right;">$200K</td><td style="text-align: right;">$260K</td><td style="text-align: right;">$310K</td><td style="text-align: right;">$350K</td></tr>
+            <tr><td><strong>Gross Churn</strong></td><td style="text-align: right;">10%</td><td style="text-align: right;">8%</td><td style="text-align: right;">6%</td><td style="text-align: right;">5%</td><td style="text-align: right;">5%</td></tr>
+            <tr><td><strong>Net Revenue Retention</strong></td><td style="text-align: right;">110%</td><td style="text-align: right;">125%</td><td style="text-align: right;">135%</td><td style="text-align: right;">130%</td><td style="text-align: right;">125%</td></tr>
+            <tr class="fin-total"><td><strong>ARR</strong></td><td style="text-align: right; font-size: 13px;">$1.2M</td><td style="text-align: right; font-size: 13px;">$8.4M</td><td style="text-align: right; font-size: 13px;">$36M</td><td style="text-align: right; font-size: 13px;">$124M</td><td style="text-align: right; font-size: 13px;">$333M</td></tr>
+            <tr><td><strong>YoY Growth</strong></td><td style="text-align: right;">&mdash;</td><td style="text-align: right;">600%</td><td style="text-align: right;">329%</td><td style="text-align: right;">244%</td><td style="text-align: right;">169%</td></tr>
+        </tbody>
+    </table>
+
+    <h3 class="mt-12 mb-8">Upside Scenario</h3>
+    <table style="font-size: 10px;">
+        <thead>
+            <tr><th></th><th style="text-align: right;">Year 1</th><th style="text-align: right;">Year 2</th><th style="text-align: right;">Year 3</th><th style="text-align: right;">Year 4</th><th style="text-align: right;">Year 5</th></tr>
+        </thead>
+        <tbody>
+            <tr><td><strong>Total Customers</strong></td><td style="text-align: right;">12</td><td style="text-align: right;">60</td><td style="text-align: right;">250</td><td style="text-align: right;">800</td><td style="text-align: right;">2,000</td></tr>
+            <tr><td><strong>Avg ACV</strong></td><td style="text-align: right;">$170K</td><td style="text-align: right;">$220K</td><td style="text-align: right;">$280K</td><td style="text-align: right;">$350K</td><td style="text-align: right;">$400K</td></tr>
+            <tr class="fin-total"><td><strong>ARR</strong></td><td style="text-align: right; font-size: 13px;">$2.0M</td><td style="text-align: right; font-size: 13px;">$13.2M</td><td style="text-align: right; font-size: 13px;">$70M</td><td style="text-align: right; font-size: 13px;">$280M</td><td style="text-align: right; font-size: 13px;">$800M</td></tr>
+        </tbody>
+    </table>
+
+    <div class="callout-green mt-12" style="font-size: 10.5px;">
+        <strong>Benchmark:</strong> Thoughtful AI reached $100M ARR in ~3 years doing AI agents for RCM. Waystar generates $1.1B revenue serving 30,000 clients with traditional cloud RCM software. Both validate the growth trajectory. With performance-based pricing and a full-stack agent approach, Slate is positioned to grow faster.
+    </div>
+
+    <div class="page-footer">
+        <div class="logo-small">slate<span>health</span></div>
+        <div>Confidential &mdash; Page 9</div>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE 10: UNIT ECONOMICS -->
+<!-- ============================================================ -->
+<div class="page">
+    <div class="section-num">Section 08</div>
+    <div class="accent-line"></div>
+    <h2>Unit Economics</h2>
+    <div class="section-desc">At scale, Slate's unit economics are exceptionally attractive: AI agents cost a fraction of the labor they replace, creating high gross margins and strong LTV/CAC ratios.</div>
+
+    <div class="cols">
+        <div>
+            <div class="chart-box">
+                <div class="chart-title">Revenue Per Customer Over Time (Land & Expand)</div>
+                <div style="height: 190px;"><canvas id="chartExpand"></canvas></div>
+            </div>
+        </div>
+        <div>
+            <h3 class="mb-8">Key Unit Economics (at scale)</h3>
+            <table style="font-size: 10.5px;">
+                <tbody>
+                    <tr><td><strong>Average ACV (Year 3)</strong></td><td style="text-align: right; font-weight: 700; color: #4F46E5;">$260,000</td></tr>
+                    <tr><td><strong>Gross Margin</strong></td><td style="text-align: right; font-weight: 700; color: #059669;">85-90%</td></tr>
+                    <tr><td><strong>AI Compute Cost per Customer</strong></td><td style="text-align: right;">~$2,000-5,000/mo</td></tr>
+                    <tr><td><strong>CAC (blended)</strong></td><td style="text-align: right;">$40,000-60,000</td></tr>
+                    <tr><td><strong>Payback Period</strong></td><td style="text-align: right;">3-4 months</td></tr>
+                    <tr><td><strong>Net Revenue Retention</strong></td><td style="text-align: right; font-weight: 700; color: #059669;">125-135%</td></tr>
+                    <tr><td><strong>LTV (5-year)</strong></td><td style="text-align: right; font-weight: 700; color: #4F46E5;">$1.2M+</td></tr>
+                    <tr><td><strong>LTV / CAC</strong></td><td style="text-align: right; font-weight: 700; color: #059669;">20-30x</td></tr>
+                    <tr><td><strong>Gross Churn</strong></td><td style="text-align: right;">&lt;6% (at scale)</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <h3 class="mt-16 mb-8">Why Margins Are High</h3>
+    <div class="cols">
+        <div style="font-size: 10.5px; color: #475569; line-height: 1.7;">
+            <p><strong style="color: #1a1a2e;">Near-zero marginal cost.</strong> Each AI agent processes thousands of transactions per hour. The compute cost to handle one hospital's prior auths is ~$500/month. The labor it replaces costs $50,000+/month. That's a 99% cost advantage.</p>
+        </div>
+        <div style="font-size: 10.5px; color: #475569; line-height: 1.7;">
+            <p><strong style="color: #1a1a2e;">Expand without selling.</strong> As agents automate more tasks within an account, revenue grows automatically (more labor replaced = higher 15% fee). NRR exceeds 125% without requiring sales effort on existing accounts.</p>
+        </div>
+    </div>
+
+    <h3 class="mt-16 mb-8">Cost of Replacement: AI Agent vs. Human Administrator</h3>
+    <table style="font-size: 10px;">
+        <thead><tr><th>Metric</th><th style="text-align: center;">Human Admin</th><th style="text-align: center;">Slate AI Agent</th><th style="text-align: center;">Delta</th></tr></thead>
+        <tbody>
+            <tr><td>Annual cost (fully loaded)</td><td style="text-align: center;">$72,800</td><td style="text-align: center;">$3,600</td><td style="text-align: center; font-weight: 700; color: #059669;">20x cheaper</td></tr>
+            <tr><td>Hours available / year</td><td style="text-align: center;">2,080</td><td style="text-align: center;">8,760</td><td style="text-align: center; font-weight: 700; color: #059669;">4.2x more</td></tr>
+            <tr><td>Transactions / hour</td><td style="text-align: center;">4-8</td><td style="text-align: center;">500+</td><td style="text-align: center; font-weight: 700; color: #059669;">60-125x faster</td></tr>
+            <tr><td>Error rate</td><td style="text-align: center;">5-10%</td><td style="text-align: center;">&lt;1%</td><td style="text-align: center; font-weight: 700; color: #059669;">5-10x fewer errors</td></tr>
+            <tr><td>Sick days / PTO</td><td style="text-align: center;">15-25 days</td><td style="text-align: center;">0</td><td style="text-align: center; font-weight: 700; color: #059669;">100% uptime</td></tr>
+        </tbody>
+    </table>
+
+    <div class="page-footer">
+        <div class="logo-small">slate<span>health</span></div>
+        <div>Confidential &mdash; Page 10</div>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE 11: GTM + RISKS -->
+<!-- ============================================================ -->
+<div class="page">
+    <div class="section-num">Section 09 & 10</div>
+    <div class="accent-line"></div>
+    <h2>Go-to-Market Strategy</h2>
+    <div class="section-desc">Land with prior auth + billing (50% of admin time, highest pain), expand to all six agents over 12 months.</div>
+
+    <h3 class="mb-8">Phased GTM Plan</h3>
+    <table style="font-size: 10px;">
+        <thead><tr><th>Phase</th><th>Timeline</th><th>Focus</th><th>Target Segment</th></tr></thead>
+        <tbody>
+            <tr><td style="font-weight: 700; color: #4F46E5;">1. Prove</td><td>Months 1-6</td><td>Land 5-8 pilot customers. Demonstrate ROI on prior auth + claims agents. Build case studies.</td><td>Mid-size health systems (50-200 beds)</td></tr>
+            <tr><td style="font-weight: 700; color: #4F46E5;">2. Sell</td><td>Months 7-18</td><td>Hire 4-6 AEs. Launch all 6 agents. Target CFOs and COOs directly. Series A.</td><td>Health systems + large practices</td></tr>
+            <tr><td style="font-weight: 700; color: #4F46E5;">3. Scale</td><td>Months 19-36</td><td>Channel partnerships (EHR vendors, consultancies). Enterprise sales team. Series B.</td><td>Large IDNs, hospital chains</td></tr>
+            <tr><td style="font-weight: 700; color: #4F46E5;">4. Dominate</td><td>Months 37-60</td><td>Category leader. Compete head-to-head with RCM outsourcers (R1, Optum). International expansion.</td><td>All US facilities + international</td></tr>
+        </tbody>
+    </table>
+
+    <h3 class="mt-16 mb-8">Sales Motion</h3>
+    <div class="cols">
+        <div style="font-size: 10.5px; color: #475569; line-height: 1.7;">
+            <p style="margin-bottom: 8px;"><strong style="color: #1a1a2e;">Lead with the ROI calculator.</strong> The homepage calculator is the top-of-funnel. CFOs input their numbers, see 5-7x ROI instantly. Converts to a "custom ROI report" lead magnet.</p>
+            <p style="margin-bottom: 8px;"><strong style="color: #1a1a2e;">Sell to the CFO, not IT.</strong> This is a cost-reduction play, not a technology play. The buyer is the person who signs checks for admin staff &mdash; the CFO or COO.</p>
+        </div>
+        <div style="font-size: 10.5px; color: #475569; line-height: 1.7;">
+            <p style="margin-bottom: 8px;"><strong style="color: #1a1a2e;">Performance guarantee closes deals.</strong> "$0 if no savings" eliminates the procurement objection. Legal and compliance review is faster when there's no financial commitment upfront.</p>
+            <p style="margin-bottom: 8px;"><strong style="color: #1a1a2e;">Expand automatically.</strong> Once prior auth + billing agents are live, scheduling and eligibility agents deploy naturally. Revenue grows without upsell effort.</p>
+        </div>
+    </div>
+
+    <div style="margin-top: 28px;"></div>
+    <div class="accent-line"></div>
+    <h2>Risk Analysis</h2>
+
+    <table style="font-size: 10px; margin-top: 12px;">
+        <thead><tr><th>Risk</th><th>Severity</th><th>Mitigation</th></tr></thead>
+        <tbody>
+            <tr><td><strong>Long enterprise sales cycles</strong></td><td style="color: #F59E0B; font-weight: 600;">Medium</td><td>Performance guarantee ($0 risk) compresses cycles. Target mid-size first.</td></tr>
+            <tr><td><strong>HIPAA compliance complexity</strong></td><td style="color: #F43F5E; font-weight: 600;">High</td><td>SOC 2 Type II + HIPAA BAA from day one. No PHI stored &mdash; agents process in transit.</td></tr>
+            <tr><td><strong>Incumbent response (Waystar, R1, Optum)</strong></td><td style="color: #F59E0B; font-weight: 600;">Medium</td><td>Incumbents are adding AI features, not rebuilding as AI-native. Speed is our moat.</td></tr>
+            <tr><td><strong>AI accuracy / hallucination risk</strong></td><td style="color: #F43F5E; font-weight: 600;">High</td><td>Human-in-the-loop for first 30 days. Continuous accuracy monitoring. Audit trails on every transaction.</td></tr>
+            <tr><td><strong>Olive AI cautionary tale</strong></td><td style="color: #F59E0B; font-weight: 600;">Medium</td><td>Olive failed from overexpansion and loss of focus. Slate stays disciplined: 6 agents, one market, performance-based.</td></tr>
+            <tr><td><strong>Regulatory changes</strong></td><td style="color: #22C55E; font-weight: 600;">Low</td><td>CMS mandates favor automation (e-prior auth 2027). Regulation is a tailwind, not a headwind.</td></tr>
+        </tbody>
+    </table>
+
+    <div class="callout mt-12" style="font-size: 10.5px;">
+        <strong>Exit Potential (Year 5):</strong> At $333M ARR with 85%+ gross margins and 125%+ NRR, Slate would be valued at <strong>15-25x ARR = $5-8B</strong> for an IPO or strategic acquisition. Potential acquirers include UnitedHealth Group, Oracle Health (Cerner), Epic, or large PE firms active in healthcare IT.
+    </div>
+
+    <div class="page-footer">
+        <div class="logo-small">slate<span>health</span></div>
+        <div>Confidential &mdash; Page 11</div>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- CHART SCRIPTS -->
+<!-- ============================================================ -->
+<script>
+// Wait for fonts to load before rendering charts
+document.fonts.ready.then(() => {
+    const defaultFont = { family: "'Inter', sans-serif", size: 9, color: '#94a3b8' };
+    Chart.defaults.font = defaultFont;
+
+    // ===== GROWTH CHART =====
+    const years = [1970,1976,1982,1988,1994,2000,2006,2012,2018,2024];
+    const mgrs  = [0,50,120,400,1400,2000,2500,2800,3200,4800];
+    const docs  = [0,10,20,40,70,100,130,155,175,200];
+
+    new Chart(document.getElementById('chartGrowth'), {
+        type: 'line',
+        data: {
+            labels: years,
+            datasets: [{
+                label: 'Healthcare Managers',
+                data: mgrs,
+                borderColor: '#6366F1', backgroundColor: 'rgba(99,102,241,0.08)',
+                fill: true, tension: 0.4, borderWidth: 2, pointRadius: 0,
+            },{
+                label: 'Physicians',
+                data: docs,
+                borderColor: '#FB7185', backgroundColor: 'rgba(244,63,94,0.08)',
+                fill: true, tension: 0.4, borderWidth: 2, pointRadius: 0,
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            animation: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { color: '#f1f5f9' }, ticks: { color: '#94a3b8', font: { size: 9 } } },
+                y: {
+                    grid: { color: '#f1f5f9' },
+                    ticks: { color: '#94a3b8', font: { size: 9 }, callback: v => '+' + v.toLocaleString() + '%' },
+                    min: 0, max: 5000,
+                }
+            }
+        }
+    });
+
+    // ===== TAM CHART =====
+    new Chart(document.getElementById('chartTAM'), {
+        type: 'doughnut',
+        data: {
+            labels: ['TAM: All Admin Labor ($350-500B)', 'SAM: Automatable ($150-250B)', 'Revenue TAM: 15% ($22-37B)', 'SOM Yr 1-3 ($5-15B)'],
+            datasets: [{
+                data: [500, 250, 37, 15],
+                backgroundColor: ['#E0E7FF', '#A5B4FC', '#6366F1', '#312E81'],
+                borderWidth: 0,
+                hoverOffset: 4,
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            animation: false,
+            cutout: '50%',
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { font: { size: 9 }, padding: 10, boxWidth: 12, color: '#64748b' }
+                }
+            }
+        }
+    });
+
+    // ===== ARR CHART =====
+    new Chart(document.getElementById('chartARR'), {
+        type: 'bar',
+        data: {
+            labels: ['Year 1', 'Year 2', 'Year 3', 'Year 4', 'Year 5'],
+            datasets: [{
+                label: 'Base Case ARR ($M)',
+                data: [1.2, 8.4, 36, 124, 333],
+                backgroundColor: '#6366F1',
+                borderRadius: 4,
+                barPercentage: 0.6,
+            },{
+                label: 'Upside ARR ($M)',
+                data: [2.0, 13.2, 70, 280, 800],
+                backgroundColor: '#A5B4FC',
+                borderRadius: 4,
+                barPercentage: 0.6,
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            animation: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { font: { size: 9 }, padding: 12, boxWidth: 12, color: '#64748b' }
+                }
+            },
+            scales: {
+                x: { grid: { display: false }, ticks: { font: { size: 10, weight: '600' }, color: '#475569' } },
+                y: {
+                    grid: { color: '#f1f5f9' },
+                    ticks: { color: '#94a3b8', font: { size: 9 }, callback: v => '$' + v + 'M' },
+                }
+            }
+        }
+    });
+
+    // ===== EXPAND CHART =====
+    new Chart(document.getElementById('chartExpand'), {
+        type: 'bar',
+        data: {
+            labels: ['Q1', 'Q2', 'Q3', 'Q4', 'Q5', 'Q6', 'Q7', 'Q8'],
+            datasets: [
+                { label: 'Prior Auth', data: [40,40,40,40,40,40,40,40], backgroundColor: '#6366F1', borderRadius: 2 },
+                { label: 'Billing', data: [0,35,35,35,35,35,35,35], backgroundColor: '#10B981', borderRadius: 2 },
+                { label: 'Scheduling', data: [0,0,25,25,25,25,25,25], backgroundColor: '#3B82F6', borderRadius: 2 },
+                { label: 'Eligibility', data: [0,0,0,20,20,20,20,20], backgroundColor: '#06B6D4', borderRadius: 2 },
+                { label: 'Credentialing', data: [0,0,0,0,15,15,15,15], backgroundColor: '#8B5CF6', borderRadius: 2 },
+                { label: 'Compliance', data: [0,0,0,0,0,25,25,25], backgroundColor: '#F43F5E', borderRadius: 2 },
+            ]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            animation: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { font: { size: 8 }, padding: 8, boxWidth: 10, color: '#64748b' }
+                }
+            },
+            scales: {
+                x: { stacked: true, grid: { display: false }, ticks: { font: { size: 9 }, color: '#94a3b8' } },
+                y: {
+                    stacked: true, grid: { color: '#f1f5f9' },
+                    ticks: { color: '#94a3b8', font: { size: 9 }, callback: v => '$' + v + 'K' },
+                }
+            }
+        }
+    });
+});
+</script>
+</body>
+</html>
