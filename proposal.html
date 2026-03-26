@@ -26,16 +26,21 @@
     .font-display { font-family: 'Plus Jakarta Sans', sans-serif; }
     .font-mono { font-family: 'JetBrains Mono', monospace; }
 
-    /* Page system */
+    /* Page system - content flows naturally, no forced breaks */
     .page {
         width: 210mm;
-        min-height: 297mm;
-        padding: 20mm 22mm;
+        padding: 16mm 22mm 10mm;
         position: relative;
-        page-break-after: always;
-        overflow: hidden;
     }
     .page:last-child { page-break-after: avoid; }
+    /* Only the cover page gets forced full height */
+    .page.cover { min-height: 297mm; page-break-after: always; padding: 0; }
+    /* TOC gets its own page */
+    .page.toc-page { page-break-after: always; }
+    /* Section headers should not be orphaned */
+    .section-num, .accent-line, h2, h3 { page-break-after: avoid; }
+    /* Tables and charts should not split */
+    .chart-box, .callout, .callout-green, .callout-red, .stat-card, .agent-item, table { page-break-inside: avoid; }
 
     /* Cover page */
     .cover {
@@ -220,16 +225,13 @@
 
     /* Footer */
     .page-footer {
-        position: absolute;
-        bottom: 10mm;
-        left: 22mm;
-        right: 22mm;
         display: flex;
         justify-content: space-between;
         align-items: center;
         font-size: 8.5px;
         color: #94a3b8;
-        padding-top: 8px;
+        padding-top: 12px;
+        margin-top: 20px;
         border-top: 1px solid #f1f5f9;
     }
     .page-footer .logo-small {
@@ -377,7 +379,7 @@
 <!-- ============================================================ -->
 <!-- PAGE 2: TABLE OF CONTENTS -->
 <!-- ============================================================ -->
-<div class="page">
+<div class="page toc-page">
     <div class="accent-line"></div>
     <h2 style="font-size: 28px; margin-bottom: 32px;">Contents</h2>
     <div>
