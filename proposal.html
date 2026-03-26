@@ -394,6 +394,9 @@
         <div class="toc-item"><div class="toc-num">11</div><div class="toc-title">Technical Architecture & HIPAA Compliance</div></div>
         <div class="toc-item"><div class="toc-num">12</div><div class="toc-title">Agent Build Order & Shared Chassis</div></div>
         <div class="toc-item"><div class="toc-num">13</div><div class="toc-title">Integration Playbook & Phased Build Plan</div></div>
+        <div class="toc-item"><div class="toc-num">14</div><div class="toc-title">Prior Authorization Deep Dive</div></div>
+        <div class="toc-item"><div class="toc-num">15</div><div class="toc-title">PA Market Segmentation & Competitive Tiers</div></div>
+        <div class="toc-item"><div class="toc-num">16</div><div class="toc-title">Procedural/Imaging PA: The Unoccupied Whitespace</div></div>
     </div>
     <div class="page-footer">
         <div class="logo-small">slate<span>health</span></div>
@@ -1277,6 +1280,244 @@ Clearinghouse                  │  │ (Durable Executor)│ │               
 </div>
 
 <!-- ============================================================ -->
+<!-- PAGE 15: PA DEEP DIVE - MARKET OPPORTUNITY -->
+<!-- ============================================================ -->
+<div class="page">
+    <div class="section-num">Section 14</div>
+    <div class="accent-line"></div>
+    <h2>Prior Authorization Deep Dive</h2>
+    <div class="section-desc">PA is a $98B administrative cost center with only ~3% software penetration &mdash; one of the largest services-to-software conversion opportunities in any industry. The procedural/imaging subcategory is the hardest, highest-value, and least-automated segment.</div>
+
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 16px;">
+        <div class="stat-card red" style="padding: 14px;">
+            <div class="stat-num text-red" style="font-size: 24px;">$98B</div>
+            <div class="stat-label">PA-related admin spend. ~3% addressed by software today.</div>
+        </div>
+        <div class="stat-card accent" style="padding: 14px;">
+            <div class="stat-num text-indigo" style="font-size: 24px;">$15-20B</div>
+            <div class="stat-label">PA automation TAM by 2027 (Waystar SEC filings)</div>
+        </div>
+        <div class="stat-card" style="padding: 14px;">
+            <div class="stat-num" style="font-size: 24px; color: #1a1a2e;">45/week</div>
+            <div class="stat-label">Avg PAs completed per physician per week</div>
+        </div>
+        <div class="stat-card green" style="padding: 14px;">
+            <div class="stat-num text-green" style="font-size: 24px;">$15B</div>
+            <div class="stat-label">CMS-estimated savings over 10 years from FHIR PA mandate</div>
+        </div>
+    </div>
+
+    <h3 class="mb-8">Why PA Is Hard to Automate</h3>
+    <div class="cols">
+        <div>
+            <div class="agent-item" style="margin-bottom: 8px;">
+                <h3 style="color: #E11D48;">Payer Fragmentation</h3>
+                <p>Every payer &mdash; UHC, Aetna, Cigna, each of 33+ BCBS plans, Medicaid MCOs &mdash; has its own formulary, medical policies, required forms, and submission portal. A knee MRI might require PA from one payer with specific clinical criteria, and be auto-approved by another.</p>
+            </div>
+            <div class="agent-item" style="margin-bottom: 8px;">
+                <h3 style="color: #E11D48;">Clinical Judgment Requirement</h3>
+                <p>PA is not pure paperwork. It requires reading the patient's chart, matching clinical evidence to payer-specific medical necessity criteria, extracting the right data points, and writing narrative justification. This is where LLMs matter.</p>
+            </div>
+        </div>
+        <div>
+            <div class="agent-item" style="margin-bottom: 8px;">
+                <h3 style="color: #E11D48;">Submission Channel Chaos</h3>
+                <p>Some payers accept electronic (X12 278). Many require proprietary web portals with CAPTCHAs. Others still rely on fax. ~20% of PAs still require a phone call. Architecture must be hybrid: FHIR API + RPA + fax + voice AI.</p>
+            </div>
+            <div class="agent-item">
+                <h3 style="color: #E11D48;">Cost Per Transaction</h3>
+                <p>Manual PA costs $10.97 per transaction (CAQH 2024). Fully electronic drops to $5.79. At 45 PAs/physician/week across 1.1M physicians, even small per-unit savings compound to billions.</p>
+            </div>
+        </div>
+    </div>
+
+    <h3 class="mt-12 mb-8">The CMS-0057-F Mandate (Effective Jan 1, 2027)</h3>
+    <div class="callout" style="font-size: 10.5px;">
+        <strong>What it requires:</strong> Payers must implement a FHIR R4-based Prior Authorization API that can: (a) identify all covered services requiring PA, (b) specify documentation requirements, (c) support electronic PA request/response exchange, and (d) communicate approval/denial with specific rationale. Decisions within 72 hours (urgent) or 7 calendar days (standard) &mdash; halving previous timeframes. Payers must publicly report PA metrics.<br><br>
+        <strong>Who's covered:</strong> Medicare Advantage, state Medicaid/CHIP, Medicaid MCOs, QHP issuers on exchanges. Commercial/employer plans are NOT directly mandated.<br><br>
+        <strong>Critical signal:</strong> 50+ major insurers voluntarily committed in mid-2025 to simplifying PA, targeting 80% real-time electronic PA approvals by 2027.
+    </div>
+
+    <div class="page-footer">
+        <div class="logo-small">slate<span>health</span></div>
+        <div>Confidential &mdash; Page 15</div>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE 16: PA SEGMENTATION + COMPETITIVE TIERS -->
+<!-- ============================================================ -->
+<div class="page">
+    <div class="section-num">Section 15</div>
+    <div class="accent-line"></div>
+    <h2>PA Market Segmentation & Competitive Tiers</h2>
+    <div class="section-desc">The PA market splits into three distinct segments. Every current player is general-purpose. The procedural/imaging segment &mdash; highest-value, hardest, least-automated &mdash; is wide open.</div>
+
+    <!-- PA Segment Comparison Chart -->
+    <div class="chart-box" style="margin-bottom: 16px;">
+        <div class="chart-title">PA Sub-Segments: Value vs. Automation Level</div>
+        <div style="height: 200px;"><canvas id="chartPASegments"></canvas></div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px;">
+        <div class="stat-card" style="padding: 14px; border-left: 4px solid #F59E0B;">
+            <div style="font-weight: 700; font-size: 12px; color: #1a1a2e; margin-bottom: 4px;">Pharmacy / Rx PA</div>
+            <div style="font-size: 9.5px; color: #64748b; line-height: 1.5;">
+                <strong>Most automated.</strong> CoverMyMeds (McKesson) and Tandem ($1B valuation) dominate. Pharma-funded. Formulary-driven rules. ePA via Surescripts is standardized.
+            </div>
+            <span class="agent-tag" style="background: #FEF3C7; color: #92400E; margin-top: 6px;">~60% automated</span>
+        </div>
+        <div class="stat-card" style="padding: 14px; border-left: 4px solid #6366F1;">
+            <div style="font-weight: 700; font-size: 12px; color: #1a1a2e; margin-bottom: 4px;">General Medical PA</div>
+            <div style="font-size: 9.5px; color: #64748b; line-height: 1.5;">
+                <strong>Partially automated.</strong> Waystar, Rhyme, Myndshft, Silna cover broad PA types shallowly. Rules-based + AI bolt-ons. Portal navigation via RPA.
+            </div>
+            <span class="agent-tag" style="background: #EEF2FF; color: #4338CA; margin-top: 6px;">~20% automated</span>
+        </div>
+        <div class="stat-card" style="padding: 14px; border-left: 4px solid #E11D48;">
+            <div style="font-weight: 700; font-size: 12px; color: #1a1a2e; margin-bottom: 4px;">Procedural / Imaging PA</div>
+            <div style="font-size: 9.5px; color: #64748b; line-height: 1.5;">
+                <strong>Least automated, highest value.</strong> MRIs, CT-guided procedures, surgery, spine instrumentation. Requires clinical reasoning from imaging data. No AI-native player exists.
+            </div>
+            <span class="agent-tag" style="background: #FFF1F2; color: #BE123C; margin-top: 6px;">~3% automated</span>
+        </div>
+    </div>
+
+    <h3 class="mt-8 mb-8">Five-Tier Competitive Landscape</h3>
+    <table style="font-size: 9.5px;">
+        <thead><tr><th>Tier</th><th>Players</th><th>Approach</th><th>Limitation</th></tr></thead>
+        <tbody>
+            <tr>
+                <td style="font-weight: 700; color: #64748b;">1. Legacy + AI Bolt-On</td>
+                <td>Waystar (NYSE: WAY), CoverMyMeds, Availity</td>
+                <td>Broad RCM / clearinghouse with PA as one module. Deep EHR + payer connections.</td>
+                <td>Not AI-native. Rules-based. Shallow PA automation.</td>
+            </tr>
+            <tr>
+                <td style="font-weight: 700; color: #4F46E5;">2. AI-Native Scale</td>
+                <td>Cohere Health ($90M Series C), Tandem ($1B valuation)</td>
+                <td>Cohere: payer-side UM, 90% auto-approval. Tandem: Rx-only PA, pharma-funded.</td>
+                <td>Cohere sells to payers, not providers. Tandem is Rx-only.</td>
+            </tr>
+            <tr>
+                <td style="font-weight: 700; color: #059669;">3. AI-Native Specialists</td>
+                <td>Infinitus ($103M), Myndshft, Rhyme, Silna Health</td>
+                <td>Infinitus: voice AI for phone-based PA. Others: cloud-native end-to-end PA.</td>
+                <td>General-purpose across clinical domains. No imaging depth.</td>
+            </tr>
+            <tr>
+                <td style="font-weight: 700; color: #7C3AED;">4. Vertical Specialists</td>
+                <td>Latent Health, Mandolin, Flow Auth, Tennr, Squad Health</td>
+                <td>Niche: specialty pharmacy, infusion, fax extraction, appeals.</td>
+                <td>Narrow scope. Not full PA automation.</td>
+            </tr>
+            <tr>
+                <td style="font-weight: 700; color: #0891B2;">5. EHR-Native</td>
+                <td>Epic (CRD/DTR/PAS), Oracle Health</td>
+                <td>Building PA workflows directly into EHRs. FHIR-based.</td>
+                <td>Basic submit-and-track. No AI clinical reasoning. No imaging awareness.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="callout-red mt-8" style="font-size: 10.5px;">
+        <strong>The critical gap:</strong> Every single player is general-purpose across clinical domains. None has deep domain expertise in surgical, procedural, or imaging workflows. That is the exact segment where PA is most painful, highest-stakes, and least automated. This is Slate's wedge.
+    </div>
+
+    <div class="page-footer">
+        <div class="logo-small">slate<span>health</span></div>
+        <div>Confidential &mdash; Page 16</div>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE 17: PROCEDURAL/IMAGING PA GAP + ARCHITECTURE -->
+<!-- ============================================================ -->
+<div class="page">
+    <div class="section-num">Section 16</div>
+    <div class="accent-line"></div>
+    <h2>The Procedural/Imaging PA Opportunity</h2>
+    <div class="section-desc">The imaging and procedural PA sub-segment is estimated at $5-10B TAM. A layer-by-layer competitive analysis confirms a validated, unoccupied whitespace.</div>
+
+    <h3 class="mb-8">Confirmed Market Gap: Layer-by-Layer Analysis</h3>
+    <table style="font-size: 10px;">
+        <thead><tr><th>Layer</th><th>Who's There</th><th style="color: #E11D48;">What's Missing</th></tr></thead>
+        <tbody>
+            <tr>
+                <td><strong>Payer-side review (gatekeepers)</strong></td>
+                <td>eviCore (Cigna), Carelon/AIM (Anthem), Stanson/ImagingAssure (Premier)</td>
+                <td>These define criteria. Not competitors &mdash; understanding their guidelines is the data moat.</td>
+            </tr>
+            <tr>
+                <td><strong>Submission plumbing (logistics)</strong></td>
+                <td>Infinx (strongest), Waystar, Rhyme</td>
+                <td>They automate portal navigation, form-filling, status checking. <strong>No clinical reasoning.</strong></td>
+            </tr>
+            <tr style="background: #FFF1F2;">
+                <td><strong>Clinical justification (the hard part)</strong></td>
+                <td style="font-weight: 800; color: #E11D48;">NOBODY</td>
+                <td style="font-weight: 600;">No company generates imaging-aware medical necessity arguments from actual imaging data.</td>
+            </tr>
+            <tr style="background: #FFF1F2;">
+                <td><strong>Imaging-native PA (data advantage)</strong></td>
+                <td style="font-weight: 800; color: #E11D48;">NOBODY</td>
+                <td style="font-weight: 600;">No company starts with DICOM data itself and works outward to PA submission.</td>
+            </tr>
+            <tr style="background: #FFF1F2;">
+                <td><strong>Closed-loop workflow</strong></td>
+                <td style="font-weight: 800; color: #E11D48;">NOBODY</td>
+                <td style="font-weight: 600;">No company connects imaging &rarr; surgical planning &rarr; PA submission &rarr; procedure execution.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3 class="mt-12 mb-8">PA Agent Architecture: Four-Layer System</h3>
+    <div class="chart-box" style="padding: 16px; font-size: 9.5px;">
+        <!-- Visual flow diagram using CSS -->
+        <div style="display: grid; grid-template-columns: 1fr; gap: 0; max-width: 520px; margin: 0 auto;">
+            <div style="background: linear-gradient(135deg, #EEF2FF, #F5F3FF); border: 2px solid #6366F1; border-radius: 10px; padding: 12px 16px; text-align: center;">
+                <div style="font-weight: 800; color: #4F46E5; font-size: 11px;">LAYER 1 &mdash; Clinical AI Engine</div>
+                <div style="color: #64748b; font-size: 9px; margin-top: 3px;">LLM reads clinical context + imaging data. Generates structured findings, measurements, narrative justification matching payer-specific medical necessity criteria. <strong>Deepest moat.</strong></div>
+            </div>
+            <div style="text-align: center; color: #6366F1; font-size: 18px; line-height: 1.2;">&#x25BC;</div>
+            <div style="background: linear-gradient(135deg, #ECFDF5, #F0FFF4); border: 2px solid #10B981; border-radius: 10px; padding: 12px 16px; text-align: center;">
+                <div style="font-weight: 800; color: #059669; font-size: 11px;">LAYER 2 &mdash; Payer Rules Engine</div>
+                <div style="color: #64748b; font-size: 9px; margin-top: 3px;">Continuously updated database mapping CPT/HCPCS codes &rarr; payer-specific PA requirements, documentation needs, medical necessity criteria. Encodes eviCore, AIM, individual payer guidelines.</div>
+            </div>
+            <div style="text-align: center; color: #10B981; font-size: 18px; line-height: 1.2;">&#x25BC;</div>
+            <div style="background: linear-gradient(135deg, #FFF7ED, #FFFBEB); border: 2px solid #F59E0B; border-radius: 10px; padding: 12px 16px; text-align: center;">
+                <div style="font-weight: 800; color: #D97706; font-size: 11px;">LAYER 3 &mdash; Submission Engine</div>
+                <div style="color: #64748b; font-size: 9px; margin-top: 3px;">Post-2027: FHIR R4 PA API (Da Vinci PAS/CRD/DTR) for government payers. Pre-2027 + commercial: RPA portal bots + fax automation. Voice AI integration (Infinitus) for ~20% requiring phone calls.</div>
+            </div>
+            <div style="text-align: center; color: #F59E0B; font-size: 18px; line-height: 1.2;">&#x25BC;</div>
+            <div style="background: linear-gradient(135deg, #FFF1F2, #FEF2F2); border: 2px solid #F43F5E; border-radius: 10px; padding: 12px 16px; text-align: center;">
+                <div style="font-weight: 800; color: #E11D48; font-size: 11px;">LAYER 4 &mdash; Appeals &amp; Denial Management</div>
+                <div style="color: #64748b; font-size: 9px; margin-top: 3px;">When PAs are denied, generates appeals with peer-to-peer talking points grounded in actual imaging findings. AI-annotated imaging evidence included in appeal packages. This is where significant dollar value sits.</div>
+            </div>
+        </div>
+    </div>
+
+    <h3 class="mt-8 mb-8">Payer-Side Gatekeepers (Obstacles, Not Competitors)</h3>
+    <table style="font-size: 10px;">
+        <thead><tr><th>Entity</th><th>Parent</th><th>Role</th></tr></thead>
+        <tbody>
+            <tr><td><strong>eviCore</strong></td><td>Evernorth / Cigna</td><td>Manages radiology PA for dozens of health plans. Claims 1/3 of CTs and MRIs may be unnecessary.</td></tr>
+            <tr><td><strong>Carelon / AIM</strong></td><td>Elevance / Anthem</td><td>Similar RBM role. Payers frequently switch between eviCore and Carelon without provider notice.</td></tr>
+            <tr><td><strong>Stanson / ImagingAssure</strong></td><td>Premier Inc.</td><td>Radiology benefit management confirming medical necessity. Plus ReviewAssist for broader UM.</td></tr>
+        </tbody>
+    </table>
+
+    <div class="callout-green mt-8" style="font-size: 10.5px;">
+        <strong>Regulatory tailwind:</strong> CMS launched the WISeR Model (2026-2031) &mdash; a six-year demonstration requiring prior authorization for radiology, interventional, and pain management procedures billed to Medicare Part B. Affects ASCs in 10 states (AZ, CA, FL, GA, MD, NY, OH, PA, TN, TX). This creates massive new PA volume specifically for imaging and procedural services.
+    </div>
+
+    <div class="page-footer">
+        <div class="logo-small">slate<span>health</span></div>
+        <div>Confidential &mdash; Page 17</div>
+    </div>
+</div>
+
+<!-- ============================================================ -->
 <!-- CHART SCRIPTS -->
 <!-- ============================================================ -->
 <script>
@@ -1412,6 +1653,59 @@ document.fonts.ready.then(() => {
                 y: {
                     stacked: true, grid: { color: '#f1f5f9' },
                     ticks: { color: '#94a3b8', font: { size: 9 }, callback: v => '$' + v + 'K' },
+                }
+            }
+        }
+    });
+});
+
+    // ===== PA SEGMENTS CHART =====
+    new Chart(document.getElementById('chartPASegments'), {
+        type: 'bar',
+        data: {
+            labels: ['Pharmacy / Rx PA', 'General Medical PA', 'Procedural / Imaging PA'],
+            datasets: [{
+                label: 'Automation Level (%)',
+                data: [60, 20, 3],
+                backgroundColor: ['#FBBF24', '#818CF8', '#FB7185'],
+                borderRadius: 6,
+                barPercentage: 0.5,
+                yAxisID: 'y',
+            },{
+                label: 'Value Per PA ($)',
+                data: [12, 45, 280],
+                backgroundColor: ['rgba(251,191,36,0.2)', 'rgba(129,140,248,0.2)', 'rgba(251,113,133,0.2)'],
+                borderColor: ['#F59E0B', '#6366F1', '#F43F5E'],
+                borderWidth: 2,
+                borderRadius: 6,
+                barPercentage: 0.5,
+                yAxisID: 'y1',
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            animation: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { font: { size: 9 }, padding: 10, boxWidth: 12, color: '#64748b' }
+                }
+            },
+            scales: {
+                x: { grid: { display: false }, ticks: { font: { size: 9, weight: '600' }, color: '#475569' } },
+                y: {
+                    position: 'left',
+                    grid: { color: '#f1f5f9' },
+                    ticks: { color: '#94a3b8', font: { size: 9 }, callback: v => v + '%' },
+                    max: 80,
+                    title: { display: true, text: 'Automation Level', font: { size: 8 }, color: '#94a3b8' }
+                },
+                y1: {
+                    position: 'right',
+                    grid: { display: false },
+                    ticks: { color: '#94a3b8', font: { size: 9 }, callback: v => '$' + v },
+                    max: 350,
+                    title: { display: true, text: 'Value Per PA', font: { size: 8 }, color: '#94a3b8' }
                 }
             }
         }
