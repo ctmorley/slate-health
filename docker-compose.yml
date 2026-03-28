@@ -1,0 +1,125 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: slate
+      POSTGRES_PASSWORD: slate
+      POSTGRES_DB: slate_health
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U slate -d slate_health"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  temporal:
+    image: temporalio/auto-setup:1.24
+    ports:
+      - "7233:7233"
+    environment:
+      - DB=postgresql
+      - DB_PORT=5432
+      - POSTGRES_USER=slate
+      - POSTGRES_PWD=slate
+      - POSTGRES_SEEDS=postgres
+      - DYNAMIC_CONFIG_FILE_PATH=config/dynamicconfig/development-sql.yaml
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "tctl", "--address", "temporal:7233", "cluster", "health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  temporal-ui:
+    image: temporalio/ui:2.26.2
+    ports:
+      - "8088:8080"
+    environment:
+      - TEMPORAL_ADDRESS=temporal:7233
+      - TEMPORAL_CORS_ORIGINS=http://localhost:3000
+    depends_on:
+      temporal:
+        condition: service_healthy
+    profiles:
+      - ui
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.backend
+    ports:
+      - "8000:8000"
+    environment:
+      SLATE_DATABASE_URL: "postgresql+asyncpg://slate:slate@postgres:5432/slate_health"
+      SLATE_DEBUG: "false"
+      SLATE_TEMPORAL_ADDRESS: "temporal:7233"
+      SLATE_TEMPORAL_NAMESPACE: "default"
+      SLATE_TEMPORAL_TASK_QUEUE: "slate-health-agents"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      temporal:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/ready')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  temporal-worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.backend
+    entrypoint: ["python", "-m", "app.workflows.worker"]
+    command: []
+    environment:
+      SLATE_DATABASE_URL: "postgresql+asyncpg://slate:slate@postgres:5432/slate_health"
+      SLATE_TEMPORAL_ADDRESS: "temporal:7233"
+      SLATE_TEMPORAL_NAMESPACE: "default"
+      SLATE_TEMPORAL_TASK_QUEUE: "slate-health-agents"
+    depends_on:
+      temporal:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
+      interval: 15s
+      timeout: 3s
+      retries: 3
+
+  # Standalone migration runner — useful for CI or manual one-off runs.
+  # In normal operation the backend entrypoint runs migrations automatically.
+  migrate:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.backend
+    entrypoint: ["python", "-m", "alembic", "upgrade", "head"]
+    command: []
+    environment:
+      SLATE_DATABASE_URL: "postgresql+asyncpg://slate:slate@postgres:5432/slate_health"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles:
+      - tools
+
+volumes:
+  pgdata:

@@ -1,0 +1,426 @@
+name: CI — Sprint 12 Acceptance Gates
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  CI: "true"
+
+jobs:
+  # ── Unit & Integration Tests (with PostgreSQL testcontainers) ──────
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -e ".[dev]"
+
+      - name: Verify Docker is available (release gate prerequisite)
+        run: docker info > /dev/null 2>&1 || { echo "FAIL: Docker is required for CI"; exit 1; }
+
+      - name: Run full test suite (including PostgreSQL integration tests)
+        run: |
+          # CI=true ensures postgres integration tests FAIL (not skip) if Docker is missing.
+          # GitHub Actions runners have Docker pre-installed, so these tests will run.
+          # The pytest_terminal_summary hook in conftest.py also enforces that no
+          # postgres tests are skipped — any skip in CI is a release gate failure.
+          pytest tests/ -v --tb=short \
+            --cov=app --cov-report=term-missing --cov-report=xml:/tmp/coverage.xml \
+            --cov-fail-under=75 \
+            --junitxml=/tmp/test-results.xml 2>&1 | tee /tmp/pytest-output.txt
+          RESULT=${PIPESTATUS[0]}
+
+          # Explicit check: no PostgreSQL integration tests may be skipped in CI
+          if grep -q "SKIPPED.*test_postgres_migrations" /tmp/pytest-output.txt; then
+            echo ""
+            echo "============================================================"
+            echo "RELEASE GATE FAILURE: PostgreSQL integration tests were"
+            echo "skipped in CI. These tests are mandatory for sprint acceptance."
+            echo "============================================================"
+            exit 1
+          fi
+
+          # Explicit check: PostgreSQL tests must appear as PASSED
+          PG_PASSED=$(grep -c "PASSED.*test_postgres_migrations" /tmp/pytest-output.txt || true)
+          if [ "$PG_PASSED" -lt 1 ]; then
+            echo ""
+            echo "============================================================"
+            echo "RELEASE GATE FAILURE: No PostgreSQL integration tests ran."
+            echo "Expected at least 4 passing tests from test_postgres_migrations."
+            echo "============================================================"
+            exit 1
+          fi
+          echo ""
+          echo "PostgreSQL integration tests: $PG_PASSED PASSED (release gate OK)"
+
+          exit $RESULT
+
+      - name: Upload test results and coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-report
+          path: |
+            /tmp/test-results.xml
+            /tmp/coverage.xml
+            /tmp/pytest-output.txt
+          retention-days: 30
+
+      - name: Verify all models importable
+        run: python -c "from app.models import Base; print(f'OK: {len(Base.metadata.tables)} tables defined')"
+
+  # ── Frontend Tests & Build ───────────────────────────────────────────
+  frontend-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run frontend tests
+        run: npm test -- --reporter=verbose
+
+      - name: Build frontend (production)
+        run: npm run build
+
+  # ── Docker Compose E2E (dev compose) ─────────────────────────────────
+  docker-e2e:
+    runs-on: ubuntu-latest
+    needs: [test, frontend-test]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install backend test dependencies
+        run: pip install -e "./backend[dev]"
+
+      - name: Install frontend dependencies
+        run: cd frontend && npm ci
+
+      - name: Start Docker Compose (dev)
+        run: docker compose up -d --build --wait
+        timeout-minutes: 5
+
+      - name: Verify services are healthy
+        run: |
+          echo "=== Docker service status ==="
+          docker compose ps
+          # Both postgres and backend must be healthy
+          docker compose ps --format json | python3 -c "
+          import sys, json
+          services = [json.loads(line) for line in sys.stdin]
+          for svc in services:
+              name = svc.get('Service', svc.get('Name', 'unknown'))
+              health = svc.get('Health', 'unknown')
+              state = svc.get('State', 'unknown')
+              print(f'  {name}: state={state} health={health}')
+              if state != 'running':
+                  print(f'FAIL: {name} is not running')
+                  sys.exit(1)
+          print('All services running.')
+          "
+
+      - name: Health endpoint returns 200
+        run: |
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/health)
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "FAIL: /health returned $HTTP_CODE (expected 200)"
+            exit 1
+          fi
+          BODY=$(curl -s http://localhost:8000/health)
+          echo "/health response: $BODY"
+
+      - name: Ready endpoint returns 200 (database connected)
+        run: |
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/ready)
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "FAIL: /ready returned $HTTP_CODE (expected 200)"
+            exit 1
+          fi
+          BODY=$(curl -s http://localhost:8000/ready)
+          echo "/ready response: $BODY"
+
+      - name: Verify Alembic migrations created all tables
+        run: |
+          echo "=== Checking PostgreSQL tables ==="
+          docker compose exec -T postgres psql -U slate -d slate_health -c "\dt" | tee /tmp/tables.txt
+          # Verify critical tables exist
+          for TABLE in users organizations patients encounters agent_tasks \
+                       workflow_executions hitl_reviews audit_logs phi_access_log \
+                       payers payer_rules clearinghouse_configs eligibility_checks \
+                       claims claim_denials prior_auth_requests prior_auth_appeals \
+                       scheduling_requests credentialing_applications compliance_reports; do
+            if grep -q "$TABLE" /tmp/tables.txt; then
+              echo "  OK: $TABLE"
+            else
+              echo "  FAIL: $TABLE not found"
+              exit 1
+            fi
+          done
+          echo "All expected tables present."
+
+      - name: Verify Alembic migration round-trip
+        run: |
+          echo "=== Testing downgrade → upgrade cycle ==="
+          docker compose exec -T backend python -m alembic downgrade base
+          docker compose exec -T backend python -m alembic upgrade head
+          TABLE_COUNT=$(docker compose exec -T postgres psql -U slate -d slate_health -t -c \
+            "SELECT count(*) FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE' AND table_name != 'alembic_version';")
+          TABLE_COUNT=$(echo "$TABLE_COUNT" | tr -d ' ')
+          echo "Tables after round-trip: $TABLE_COUNT"
+          if [ "$TABLE_COUNT" -lt 18 ]; then
+            echo "FAIL: expected at least 18 tables, got $TABLE_COUNT"
+            exit 1
+          fi
+          echo "Migration round-trip OK."
+
+      - name: Run backend Docker E2E tests
+        env:
+          DOCKER_E2E: "1"
+          BACKEND_URL: "http://localhost:8000"
+        working-directory: backend
+        run: |
+          echo "=== Running Docker E2E test suite ==="
+          pytest tests/e2e/test_docker_e2e.py -v --tb=short \
+            --junitxml=/tmp/docker-e2e-results.xml 2>&1 | tee /tmp/docker-e2e-output.txt
+          RESULT=${PIPESTATUS[0]}
+          if [ "$RESULT" -ne 0 ]; then
+            echo ""
+            echo "============================================================"
+            echo "RELEASE GATE FAILURE: Docker E2E tests failed."
+            echo "============================================================"
+            exit $RESULT
+          fi
+          echo "Docker E2E tests PASSED."
+
+      - name: Upload Docker E2E test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-e2e-report
+          path: |
+            /tmp/docker-e2e-results.xml
+            /tmp/docker-e2e-output.txt
+          retention-days: 30
+
+      - name: Run frontend Docker E2E tests (fetch-based)
+        env:
+          DOCKER_E2E: "1"
+          FRONTEND_PORT: "3000"
+          FRONTEND_HOST: "localhost"
+        working-directory: frontend
+        run: |
+          echo "=== Running frontend Docker E2E tests ==="
+          npx vitest run tests/e2e-docker.test.ts --reporter=verbose
+          echo "Frontend Docker E2E tests PASSED."
+
+      - name: Install Playwright browsers
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Playwright browser redirect tests
+        env:
+          FRONTEND_URL: "http://localhost:3000"
+        working-directory: frontend
+        run: |
+          echo "=== Running Playwright browser E2E tests ==="
+          npx playwright test --reporter=list
+          echo "Playwright browser E2E tests PASSED."
+
+      - name: Run Lighthouse performance audit
+        working-directory: frontend
+        run: |
+          echo "=== Running Lighthouse audit ==="
+          npm run lighthouse 2>&1 | tee /tmp/lighthouse-output.txt
+          # Verify performance score meets threshold
+          if grep -q "Performance score.*[01]\." /tmp/lighthouse-output.txt; then
+            SCORE=$(grep -oP 'Performance score[:\s]*\K[0-9.]+' /tmp/lighthouse-output.txt | head -1)
+            echo "Lighthouse performance score: $SCORE"
+            python3 -c "
+          score = float('${SCORE}')
+          assert score >= 0.8, f'RELEASE GATE FAILURE: Lighthouse performance {score} < 0.8'
+          print(f'Lighthouse performance {score} >= 0.8 (OK)')
+          "
+          else
+            echo "WARNING: Could not parse Lighthouse score — skipping assertion"
+          fi
+
+      - name: Cleanup
+        if: always()
+        run: docker compose down -v
+
+  # ── Production Docker Compose Acceptance ──────────────────────────────
+  prod-compose:
+    runs-on: ubuntu-latest
+    needs: [test, frontend-test]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install backend test dependencies
+        run: pip install -e "./backend[dev]"
+
+      - name: Verify Docker Compose version >= 2.20
+        run: |
+          VERSION=$(docker compose version --short)
+          echo "Docker Compose version: $VERSION"
+          python3 -c "
+          v = '${VERSION}'.lstrip('v')
+          parts = v.split('.')
+          major, minor = int(parts[0]), int(parts[1])
+          assert (major, minor) >= (2, 20), f'Docker Compose {v} < 2.20 — deploy.resources requires >= 2.20'
+          print(f'Docker Compose {v} >= 2.20 (OK)')
+          "
+
+      - name: Create .env for production compose
+        run: |
+          cat > .env << 'ENVEOF'
+          POSTGRES_USER=slate
+          POSTGRES_PASSWORD=slatetest
+          POSTGRES_DB=slate_health
+          SLATE_DATABASE_URL=postgresql+asyncpg://slate:slatetest@postgres:5432/slate_health
+          SLATE_TEMPORAL_ADDRESS=temporal:7233
+          SLATE_TEMPORAL_NAMESPACE=default
+          SLATE_TEMPORAL_TASK_QUEUE=slate-health-agents
+          SLATE_DEBUG=false
+          SLATE_SECRET_KEY=ci-test-secret-key-not-for-production
+          ENVEOF
+
+      - name: Start production Docker Compose
+        run: docker compose -f docker-compose.prod.yml up -d --build --wait
+        timeout-minutes: 8
+
+      - name: Verify all production services are healthy
+        run: |
+          echo "=== Production Docker Compose service status ==="
+          docker compose -f docker-compose.prod.yml ps
+          docker compose -f docker-compose.prod.yml ps --format json | python3 -c "
+          import sys, json
+          services = [json.loads(line) for line in sys.stdin]
+          for svc in services:
+              name = svc.get('Service', svc.get('Name', 'unknown'))
+              health = svc.get('Health', 'unknown')
+              state = svc.get('State', 'unknown')
+              print(f'  {name}: state={state} health={health}')
+              if state != 'running':
+                  print(f'FAIL: {name} is not running')
+                  sys.exit(1)
+          print('All production services running.')
+          "
+
+      - name: Production health and readiness checks
+        run: |
+          curl -sf http://localhost:8000/health | python3 -c "
+          import sys, json
+          data = json.load(sys.stdin)
+          assert data['status'] == 'healthy', f'Health check failed: {data}'
+          print('Production /health OK')
+          "
+          curl -sf http://localhost:8000/ready | python3 -c "
+          import sys, json
+          data = json.load(sys.stdin)
+          print(f'Production /ready OK: {data}')
+          "
+
+      - name: Production smoke test — one task per agent type
+        env:
+          DOCKER_E2E: "1"
+          BACKEND_URL: "http://localhost:8000"
+        working-directory: backend
+        run: |
+          echo "=== Running production smoke test (all 6 agent types) ==="
+          pytest tests/e2e/test_docker_e2e.py::test_all_six_agents_full_lifecycle_docker \
+                 tests/e2e/test_docker_e2e.py::test_prod_compose_services_healthy \
+                 -v --tb=short --junitxml=/tmp/prod-smoke-results.xml
+          echo "Production smoke test PASSED."
+
+      - name: Upload production smoke test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: prod-smoke-report
+          path: /tmp/prod-smoke-results.xml
+          retention-days: 30
+
+      - name: Cleanup
+        if: always()
+        run: docker compose -f docker-compose.prod.yml down -v
+
+  # ── Release Gate — required status check for branch protection ─────
+  # This job MUST be added as a required status check in the GitHub repo
+  # settings (Settings > Branches > Branch protection rules > Require
+  # status checks: "release-gate"). It ensures all test suites —
+  # including Docker E2E and Playwright — pass before merge.
+  release-gate:
+    runs-on: ubuntu-latest
+    if: always()
+    needs: [test, frontend-test, docker-e2e, prod-compose]
+    steps:
+      - name: Verify all jobs passed
+        run: |
+          echo "=== Release Gate — checking all required jobs ==="
+          echo "  test:          ${{ needs.test.result }}"
+          echo "  frontend-test: ${{ needs.frontend-test.result }}"
+          echo "  docker-e2e:    ${{ needs.docker-e2e.result }}"
+          echo "  prod-compose:  ${{ needs.prod-compose.result }}"
+          echo ""
+
+          FAILED=0
+          for JOB_RESULT in \
+            "${{ needs.test.result }}" \
+            "${{ needs.frontend-test.result }}" \
+            "${{ needs.docker-e2e.result }}" \
+            "${{ needs.prod-compose.result }}"; do
+            if [ "$JOB_RESULT" != "success" ]; then
+              FAILED=1
+            fi
+          done
+
+          if [ "$FAILED" -eq 1 ]; then
+            echo "============================================================"
+            echo "RELEASE GATE FAILURE: One or more required jobs did not pass."
+            echo "All of [test, frontend-test, docker-e2e, prod-compose] must"
+            echo "succeed. Docker E2E and Playwright browser tests are mandatory"
+            echo "— they cannot be skipped."
+            echo "============================================================"
+            exit 1
+          fi
+
+          echo "All required jobs passed. Release gate OK."

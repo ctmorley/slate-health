@@ -1,0 +1,184 @@
+# Production Docker Compose for Slate Health
+# Usage: docker compose -f docker-compose.prod.yml up -d
+#
+# NOTE on deploy.resources / deploy.replicas:
+#   These directives are enforced by Docker Compose v2.20+ in non-Swarm mode.
+#   Older versions or plain `docker-compose` (v1) silently ignore them.
+#   If you are running Docker Compose < 2.20, either:
+#     1. Upgrade to Docker Compose v2.20+, or
+#     2. Use Docker Swarm mode: `docker stack deploy -c docker-compose.prod.yml slate`
+#   CI pipelines should use `docker compose version` to verify >= 2.20.
+#
+# CI smoke test:
+#   docker compose -f docker-compose.prod.yml up -d --wait
+#   # Wait for all healthchecks to pass
+#   curl -sf http://localhost:8000/health
+#   # Run one-task-per-agent smoke
+#   DOCKER_E2E=1 BACKEND_URL=http://localhost:8000 pytest tests/e2e/test_docker_e2e.py -v
+#   docker compose -f docker-compose.prod.yml down
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-slate}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-slate_health}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    shm_size: 256mb
+    networks:
+      - slate-network
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 2G
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-slate} -d ${POSTGRES_DB:-slate_health}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  temporal:
+    image: temporalio/auto-setup:1.24
+    restart: unless-stopped
+    environment:
+      - DB=postgresql
+      - DB_PORT=5432
+      - POSTGRES_USER=${POSTGRES_USER:-slate}
+      - POSTGRES_PWD=${POSTGRES_PASSWORD}
+      - POSTGRES_SEEDS=postgres
+      - DYNAMIC_CONFIG_FILE_PATH=config/dynamicconfig/development-sql.yaml
+    networks:
+      - slate-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1G
+    healthcheck:
+      test: ["CMD", "tctl", "--address", "temporal:7233", "cluster", "health"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    networks:
+      - slate-network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      SLATE_TEMPORAL_ADDRESS: "temporal:7233"
+      SLATE_DATABASE_URL: "postgresql+asyncpg://${POSTGRES_USER:-slate}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-slate_health}"
+      SLATE_RATE_LIMIT_REDIS_URL: "redis://redis:6379/0"
+    networks:
+      - slate-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      temporal:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: "2"
+          memory: 1G
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/ready')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  temporal-worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.backend
+    restart: unless-stopped
+    entrypoint: ["python", "-m", "app.workflows.worker"]
+    command: []
+    env_file:
+      - .env
+    environment:
+      SLATE_TEMPORAL_ADDRESS: "temporal:7233"
+      SLATE_DATABASE_URL: "postgresql+asyncpg://${POSTGRES_USER:-slate}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-slate_health}"
+    networks:
+      - slate-network
+    depends_on:
+      temporal:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1G
+    healthcheck:
+      test: ["CMD", "python", "-c", "import asyncio; from temporalio.client import Client; asyncio.run(Client.connect('temporal:7233'))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    networks:
+      - slate-network
+    depends_on:
+      backend:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
+      interval: 15s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  pgdata:
+
+networks:
+  slate-network:
+    driver: bridge
