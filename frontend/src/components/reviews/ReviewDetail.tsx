@@ -72,20 +72,20 @@ export default function ReviewDetail({
       </Button>
 
       {/* Header */}
-      <div className="mb-6 rounded-lg border border-gray-200 bg-white p-5">
+      <div className="mb-6 glass-card rounded-lg p-5">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-gray-900">
+          <h3 className="text-lg font-semibold text-slate-100">
             Review {review.id.slice(0, 10)}
           </h3>
           <span
             className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${
               review.status === "approved"
-                ? "bg-green-100 text-green-800"
+                ? "bg-mint-600/10 text-mint-500"
                 : review.status === "rejected"
-                  ? "bg-red-100 text-red-800"
+                  ? "bg-coral-600/10 text-coral-500"
                   : review.status === "escalated"
-                    ? "bg-orange-100 text-orange-800"
-                    : "bg-yellow-100 text-yellow-800"
+                    ? "bg-orange-500/10 text-orange-400"
+                    : "bg-yellow-500/10 text-yellow-400"
             }`}
           >
             {review.status}
@@ -94,22 +94,22 @@ export default function ReviewDetail({
 
         <div className="mt-4 grid grid-cols-2 gap-4 text-sm sm:grid-cols-3">
           <div>
-            <p className="text-xs text-gray-500">Task ID</p>
-            <p className="font-mono text-xs text-gray-900">
+            <p className="text-xs text-slate-400">Task ID</p>
+            <p className="font-mono text-xs text-slate-100">
               {review.task_id}
             </p>
           </div>
           <div>
-            <p className="text-xs text-gray-500">Confidence</p>
-            <p className="font-medium text-gray-900">
+            <p className="text-xs text-slate-400">Confidence</p>
+            <p className="font-medium text-slate-100">
               {review.confidence_score != null
                 ? `${(review.confidence_score * 100).toFixed(0)}%`
                 : "-"}
             </p>
           </div>
           <div>
-            <p className="text-xs text-gray-500">Created</p>
-            <p className="text-gray-900">
+            <p className="text-xs text-slate-400">Created</p>
+            <p className="text-slate-100">
               {new Date(review.created_at).toLocaleString()}
             </p>
           </div>
@@ -117,39 +117,39 @@ export default function ReviewDetail({
       </div>
 
       {/* Reason */}
-      <div className="mb-6 rounded-lg border border-gray-200 bg-white p-5">
-        <h4 className="mb-2 text-sm font-semibold text-gray-900">
+      <div className="mb-6 glass-card rounded-lg p-5">
+        <h4 className="mb-2 text-sm font-semibold text-slate-100">
           Escalation Reason
         </h4>
-        <p className="text-sm text-gray-700">
+        <p className="text-sm text-slate-300">
           {review.reason || "Confidence below threshold"}
         </p>
       </div>
 
       {/* Agent Decision */}
-      <div className="mb-6 rounded-lg border border-gray-200 bg-white p-5">
-        <h4 className="mb-2 text-sm font-semibold text-gray-900">
+      <div className="mb-6 glass-card rounded-lg p-5">
+        <h4 className="mb-2 text-sm font-semibold text-slate-100">
           Agent Decision
         </h4>
         {Object.keys(decisionData).length > 0 ? (
-          <pre className="max-h-60 overflow-auto rounded-md bg-gray-50 p-3 text-xs text-gray-700">
+          <pre className="max-h-60 overflow-auto rounded-md bg-slate_d-900 p-3 font-mono text-xs text-slate-300">
             {decisionJson}
           </pre>
         ) : (
-          <p className="text-sm text-gray-400">No decision data available</p>
+          <p className="text-sm text-slate-500">No decision data available</p>
         )}
       </div>
 
       {/* Evidence */}
-      <div className="mb-6 rounded-lg border border-gray-200 bg-white p-5" data-testid="review-evidence-section">
-        <h4 className="mb-2 text-sm font-semibold text-gray-900">
+      <div className="mb-6 glass-card rounded-lg p-5" data-testid="review-evidence-section">
+        <h4 className="mb-2 text-sm font-semibold text-slate-100">
           Evidence
         </h4>
         {(() => {
           const evidence = decisionData.evidence ?? decisionData.clinical_evidence ?? decisionData.supporting_data;
           if (evidence && typeof evidence === "object" && Object.keys(evidence as Record<string, unknown>).length > 0) {
             return (
-              <pre className="max-h-60 overflow-auto rounded-md bg-gray-50 p-3 text-xs text-gray-700">
+              <pre className="max-h-60 overflow-auto rounded-md bg-slate_d-900 p-3 font-mono text-xs text-slate-300">
                 {JSON.stringify(evidence, null, 2)}
               </pre>
             );
@@ -173,10 +173,10 @@ export default function ReviewDetail({
               <div className="space-y-2">
                 {Object.entries(evidenceFields).map(([key, value]) => (
                   <div key={key} className="flex gap-2 text-sm">
-                    <span className="min-w-[140px] font-medium text-gray-500">
+                    <span className="min-w-[140px] font-medium text-slate-400">
                       {key.replace(/_/g, " ")}
                     </span>
-                    <span className="text-gray-700">
+                    <span className="text-slate-300">
                       {typeof value === "object" ? JSON.stringify(value) : String(value)}
                     </span>
                   </div>
@@ -185,7 +185,7 @@ export default function ReviewDetail({
             );
           }
           return (
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-slate-500">
               No additional evidence available
             </p>
           );
@@ -194,24 +194,24 @@ export default function ReviewDetail({
 
       {/* Confidence Breakdown */}
       {review.confidence_score != null && (
-        <div className="mb-6 rounded-lg border border-gray-200 bg-white p-5">
-          <h4 className="mb-2 text-sm font-semibold text-gray-900">
+        <div className="mb-6 glass-card rounded-lg p-5">
+          <h4 className="mb-2 text-sm font-semibold text-slate-100">
             Confidence Score
           </h4>
           <div className="flex items-center gap-3">
-            <div className="h-3 flex-1 rounded-full bg-gray-200">
+            <div className="h-3 flex-1 rounded-full bg-slate_d-600">
               <div
                 className={`h-3 rounded-full ${
                   review.confidence_score >= 0.7
-                    ? "bg-green-500"
+                    ? "bg-mint-600"
                     : review.confidence_score >= 0.4
                       ? "bg-yellow-500"
-                      : "bg-red-500"
+                      : "bg-coral-600"
                 }`}
                 style={{ width: `${review.confidence_score * 100}%` }}
               />
             </div>
-            <span className="text-sm font-medium text-gray-700">
+            <span className="text-sm font-medium text-slate-300">
               {(review.confidence_score * 100).toFixed(0)}%
             </span>
           </div>
@@ -220,18 +220,18 @@ export default function ReviewDetail({
 
       {/* Reviewer notes from previous decisions */}
       {review.reviewer_notes && (
-        <div className="mb-6 rounded-lg border border-gray-200 bg-white p-5">
-          <h4 className="mb-2 text-sm font-semibold text-gray-900">
+        <div className="mb-6 glass-card rounded-lg p-5">
+          <h4 className="mb-2 text-sm font-semibold text-slate-100">
             Reviewer Notes
           </h4>
-          <p className="text-sm text-gray-700">{review.reviewer_notes}</p>
+          <p className="text-sm text-slate-300">{review.reviewer_notes}</p>
         </div>
       )}
 
       {/* Success / Error Messages */}
       {successMessage && (
         <div
-          className="mb-4 rounded-md border border-green-200 bg-green-50 p-3 text-sm text-green-700"
+          className="mb-4 rounded-md border border-mint-600/30 bg-mint-600/10 p-3 text-sm text-mint-500"
           data-testid="review-success"
         >
           {successMessage}
@@ -239,7 +239,7 @@ export default function ReviewDetail({
       )}
       {actionError && (
         <div
-          className="mb-4 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700"
+          className="mb-4 rounded-md border border-coral-600/30 bg-coral-600/10 p-3 text-sm text-coral-500"
           data-testid="review-action-error"
         >
           {actionError}
@@ -248,8 +248,8 @@ export default function ReviewDetail({
 
       {/* Action area */}
       {isPending && (
-        <div className="rounded-lg border border-gray-200 bg-white p-5">
-          <h4 className="mb-3 text-sm font-semibold text-gray-900">
+        <div className="glass-card rounded-lg p-5">
+          <h4 className="mb-3 text-sm font-semibold text-slate-100">
             Review Action
           </h4>
           <textarea
@@ -257,14 +257,14 @@ export default function ReviewDetail({
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Add notes (optional)..."
             rows={3}
-            className="mb-4 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+            className="dark-input mb-4 w-full"
             data-testid="review-notes-input"
           />
           <div className="flex gap-3">
             <Button
               onClick={() => handleAction("approve")}
               disabled={acting !== null}
-              className="bg-green-600 hover:bg-green-700"
+              className="bg-mint-600 hover:bg-mint-500"
               data-testid="approve-button"
             >
               {acting === "approve" ? (

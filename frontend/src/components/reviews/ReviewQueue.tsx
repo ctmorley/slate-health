@@ -28,26 +28,26 @@ function formatTimeAgo(dateStr: string): string {
 function statusIcon(status: string) {
   switch (status) {
     case "approved":
-      return <CheckCircle2 size={14} className="text-green-600" />;
+      return <CheckCircle2 size={14} className="text-mint-500" />;
     case "rejected":
-      return <XCircle size={14} className="text-red-600" />;
+      return <XCircle size={14} className="text-coral-500" />;
     case "escalated":
-      return <AlertTriangle size={14} className="text-orange-600" />;
+      return <AlertTriangle size={14} className="text-orange-400" />;
     default:
-      return <Clock size={14} className="text-yellow-600" />;
+      return <Clock size={14} className="text-yellow-400" />;
   }
 }
 
 function statusBadgeClass(status: string): string {
   switch (status) {
     case "approved":
-      return "bg-green-100 text-green-800";
+      return "bg-mint-600/10 text-mint-500";
     case "rejected":
-      return "bg-red-100 text-red-800";
+      return "bg-coral-600/10 text-coral-500";
     case "escalated":
-      return "bg-orange-100 text-orange-800";
+      return "bg-orange-500/10 text-orange-400";
     default:
-      return "bg-yellow-100 text-yellow-800";
+      return "bg-yellow-500/10 text-yellow-400";
   }
 }
 
@@ -89,7 +89,7 @@ export default function ReviewQueue({
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12" data-testid="review-queue-loading">
-        <div className="h-6 w-6 animate-spin rounded-full border-4 border-teal-600 border-t-transparent" />
+        <div className="h-6 w-6 animate-spin rounded-full border-4 border-accent-700 border-t-transparent" />
       </div>
     );
   }
@@ -97,7 +97,7 @@ export default function ReviewQueue({
   if (reviews.length === 0) {
     return (
       <div
-        className="rounded-lg border border-gray-200 bg-white py-12 text-center text-sm text-gray-400"
+        className="glass-card rounded-lg py-12 text-center text-sm text-slate-500"
         data-testid="review-queue-empty"
       >
         No reviews in queue
@@ -107,10 +107,10 @@ export default function ReviewQueue({
 
   return (
     <div
-      className="overflow-hidden rounded-lg border border-gray-200 bg-white"
+      className="glass-card overflow-hidden rounded-lg"
       data-testid="review-queue"
     >
-      <ul className="divide-y divide-gray-100">
+      <ul className="divide-y divide-glass">
         {reviews.map((review) => {
           const agentLabel = resolveAgentType(review);
           const patientDisplay = resolvePatientDisplay(review);
@@ -119,7 +119,7 @@ export default function ReviewQueue({
             <li
               key={review.id}
               onClick={() => onSelectReview(review)}
-              className="flex cursor-pointer items-center justify-between px-5 py-4 transition-colors hover:bg-gray-50"
+              className="flex cursor-pointer items-center justify-between px-5 py-4 transition-colors hover:bg-slate_d-700"
               data-testid={`review-item-${review.id}`}
             >
               <div className="flex-1">
@@ -131,15 +131,15 @@ export default function ReviewQueue({
                     {review.status}
                   </span>
                   {agentLabel && (
-                    <span className="text-xs font-medium text-gray-600" data-testid={`review-agent-type-${review.id}`}>
+                    <span className="text-xs font-medium text-slate-400" data-testid={`review-agent-type-${review.id}`}>
                       {agentLabel}
                     </span>
                   )}
                 </div>
-                <p className="mt-1 text-sm text-gray-700">
+                <p className="mt-1 text-sm text-slate-300">
                   {review.reason || "Confidence below threshold"}
                 </p>
-                <div className="mt-1 flex items-center gap-3 text-xs text-gray-500">
+                <div className="mt-1 flex items-center gap-3 text-xs text-slate-500">
                   <span>Task: {review.task_id.slice(0, 10)}</span>
                   {patientDisplay && (
                     <span data-testid={`review-patient-${review.id}`}>
@@ -154,7 +154,7 @@ export default function ReviewQueue({
                   <span>{formatTimeAgo(review.created_at)}</span>
                 </div>
               </div>
-              <ChevronRight size={16} className="text-gray-400" />
+              <ChevronRight size={16} className="text-slate-500" />
             </li>
           );
         })}

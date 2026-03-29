@@ -13,32 +13,32 @@ const STATUS_CONFIG: Record<
   pending: {
     icon: <Clock size={14} />,
     label: "Pending",
-    color: "text-yellow-600 bg-yellow-50",
+    color: "text-yellow-400 bg-yellow-500/10",
   },
   running: {
     icon: <Loader2 size={14} className="animate-spin" />,
     label: "Running",
-    color: "text-blue-600 bg-blue-50",
+    color: "text-blue-400 bg-blue-500/10",
   },
   completed: {
     icon: <CheckCircle2 size={14} />,
     label: "Completed",
-    color: "text-green-600 bg-green-50",
+    color: "text-mint-500 bg-mint-600/10",
   },
   failed: {
     icon: <XCircle size={14} />,
     label: "Failed",
-    color: "text-red-600 bg-red-50",
+    color: "text-coral-500 bg-coral-600/10",
   },
   review: {
     icon: <AlertTriangle size={14} />,
     label: "In Review",
-    color: "text-orange-600 bg-orange-50",
+    color: "text-orange-400 bg-orange-500/10",
   },
   cancelled: {
     icon: <XCircle size={14} />,
     label: "Cancelled",
-    color: "text-gray-500 bg-gray-50",
+    color: "text-slate-400 bg-slate-500/10",
   },
 };
 
@@ -56,15 +56,15 @@ function formatTimeAgo(dateStr: string | null): string {
 export default function RecentActivity({ tasks }: RecentActivityProps) {
   return (
     <div
-      className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
+      className="glass-card rounded-lg p-4"
       data-testid="recent-activity"
     >
-      <h3 className="mb-3 text-sm font-semibold text-gray-900">
+      <h3 className="mb-3 text-sm font-semibold text-slate-100">
         Recent Activity
       </h3>
 
       {tasks.length === 0 ? (
-        <p className="py-6 text-center text-sm text-gray-400">
+        <p className="py-6 text-center text-sm text-slate-500">
           No recent activity
         </p>
       ) : (
@@ -75,7 +75,7 @@ export default function RecentActivity({ tasks }: RecentActivityProps) {
               <li
                 key={task.id}
                 data-task-id={task.task_id}
-                className="flex items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-gray-50"
+                className="flex items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-slate_d-700"
               >
                 <div className="flex items-center gap-2">
                   <span
@@ -84,14 +84,14 @@ export default function RecentActivity({ tasks }: RecentActivityProps) {
                     {cfg.icon}
                     {cfg.label}
                   </span>
-                  <span className="font-medium text-gray-700">
+                  <span className="font-medium text-slate-200">
                     {AGENT_LABELS[task.agent_type] ?? task.agent_type}
                   </span>
-                  <span className="hidden text-gray-400 sm:inline">
+                  <span className="hidden text-slate-500 sm:inline">
                     {task.id.slice(0, 8)}
                   </span>
                 </div>
-                <span className="text-xs text-gray-400">
+                <span className="text-xs text-slate-500">
                   {formatTimeAgo(task.updated_at ?? task.created_at)}
                 </span>
               </li>

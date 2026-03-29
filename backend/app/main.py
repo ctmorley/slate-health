@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
 from fastapi import Depends, FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from starlette.responses import Response
 from sqlalchemy import text
 
@@ -95,6 +96,21 @@ def create_app() -> FastAPI:
 
     # Add login redirect middleware for unauthenticated browser requests
     app.add_middleware(LoginRedirectMiddleware)
+
+    # CORS — allow frontend origins
+    cors_origins = [
+        o.strip()
+        for o in (settings.cors_origins or "").split(",")
+        if o.strip()
+    ]
+    if cors_origins:
+        app.add_middleware(
+            CORSMiddleware,
+            allow_origins=cors_origins,
+            allow_credentials=True,
+            allow_methods=["*"],
+            allow_headers=["*"],
+        )
 
     # Correlation ID tracking (runs first — outermost middleware)
     app.add_middleware(CorrelationIdMiddleware)

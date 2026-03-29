@@ -4,17 +4,17 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-slate_d-900 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-700 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
-        default: "bg-teal-700 text-white hover:bg-teal-800",
-        destructive: "bg-red-600 text-white hover:bg-red-700",
+        default: "bg-accent-700 text-white hover:bg-accent-600",
+        destructive: "bg-coral-600 text-white hover:bg-coral-500",
         outline:
-          "border border-gray-300 bg-white hover:bg-gray-50 hover:text-gray-900",
-        secondary: "bg-gray-100 text-gray-900 hover:bg-gray-200",
-        ghost: "hover:bg-gray-100 hover:text-gray-900",
-        link: "text-teal-700 underline-offset-4 hover:underline",
+          "border border-glass bg-transparent text-slate-300 hover:bg-glass-hover hover:text-white",
+        secondary: "bg-slate_d-600 text-slate-200 hover:bg-slate_d-500",
+        ghost: "text-slate-400 hover:bg-slate_d-700 hover:text-white",
+        link: "text-accent-600 underline-offset-4 hover:underline",
       },
       size: {
         default: "h-10 px-4 py-2",

@@ -26,12 +26,12 @@ interface AgentTaskDetailProps {
 }
 
 const STATUS_ICON: Record<TaskStatus, React.ReactNode> = {
-  pending: <Clock size={16} className="text-yellow-600" />,
-  running: <Loader2 size={16} className="animate-spin text-blue-600" />,
-  completed: <CheckCircle2 size={16} className="text-green-600" />,
-  failed: <XCircle size={16} className="text-red-600" />,
-  review: <AlertTriangle size={16} className="text-orange-600" />,
-  cancelled: <Ban size={16} className="text-gray-500" />,
+  pending: <Clock size={16} className="text-yellow-400" />,
+  running: <Loader2 size={16} className="animate-spin text-blue-400" />,
+  completed: <CheckCircle2 size={16} className="text-mint-500" />,
+  failed: <XCircle size={16} className="text-coral-500" />,
+  review: <AlertTriangle size={16} className="text-orange-400" />,
+  cancelled: <Ban size={16} className="text-slate-500" />,
 };
 
 const STATUS_LABEL: Record<TaskStatus, string> = {
@@ -52,16 +52,16 @@ function JsonBlock({ data, label }: { data: unknown; label: string }) {
 
   return (
     <div data-testid={`json-block-${label}`}>
-      <h4 className="mb-1 text-xs font-semibold uppercase tracking-wider text-gray-500">
+      <h4 className="mb-1 text-xs font-semibold uppercase tracking-wider text-slate-400">
         {label}
       </h4>
-      <pre className="max-h-80 overflow-auto rounded-md bg-gray-50 p-3 text-xs text-gray-700">
+      <pre className="max-h-80 overflow-auto rounded-md bg-slate_d-900 p-3 font-mono text-xs text-slate-300">
         {preview}
       </pre>
       {json.length > 200 && (
         <button
           onClick={() => setExpanded(!expanded)}
-          className="mt-1 text-xs text-teal-600 hover:underline"
+          className="mt-1 text-xs text-accent-600 hover:underline"
         >
           {expanded ? "Show less" : "Show more"}
         </button>
@@ -99,7 +99,7 @@ function StatusTimeline({ task }: { task: AgentTaskResponse }) {
 
   return (
     <div data-testid="status-timeline">
-      <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500">
+      <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
         Timeline
       </h4>
       <div className="space-y-3">
@@ -108,20 +108,20 @@ function StatusTimeline({ task }: { task: AgentTaskResponse }) {
             <div
               className={`mt-0.5 h-3 w-3 rounded-full border-2 ${
                 event.active
-                  ? "border-teal-600 bg-teal-600"
-                  : "border-gray-300 bg-white"
+                  ? "border-accent-700 bg-accent-700"
+                  : "border-slate-600 bg-slate_d-800"
               }`}
             />
             <div>
               <p
                 className={`text-sm font-medium ${
-                  event.active ? "text-gray-900" : "text-gray-400"
+                  event.active ? "text-slate-100" : "text-slate-500"
                 }`}
               >
                 {event.label}
               </p>
               {event.time && (
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-slate-400">
                   {new Date(event.time).toLocaleString()}
                 </p>
               )}
@@ -135,38 +135,38 @@ function StatusTimeline({ task }: { task: AgentTaskResponse }) {
 
 function LinkedReviewSection({ review }: { review: ReviewResponse }) {
   return (
-    <div data-testid="linked-review-section" className="rounded-lg border border-gray-200 bg-white p-4">
-      <h4 className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-gray-500">
+    <div data-testid="linked-review-section" className="glass-card rounded-lg p-4">
+      <h4 className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-400">
         <ListChecks size={14} />
         Linked Review
       </h4>
       <div className="space-y-2 text-sm">
         <div className="flex justify-between">
-          <span className="text-gray-500">Status</span>
-          <span className="font-medium text-gray-900">{review.status}</span>
+          <span className="text-slate-400">Status</span>
+          <span className="font-medium text-slate-100">{review.status}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-gray-500">Reason</span>
-          <span className="font-medium text-gray-900">{review.reason || "-"}</span>
+          <span className="text-slate-400">Reason</span>
+          <span className="font-medium text-slate-100">{review.reason || "-"}</span>
         </div>
         {review.confidence_score != null && (
           <div className="flex justify-between">
-            <span className="text-gray-500">Confidence</span>
-            <span className="font-medium text-gray-900">
+            <span className="text-slate-400">Confidence</span>
+            <span className="font-medium text-slate-100">
               {(review.confidence_score * 100).toFixed(0)}%
             </span>
           </div>
         )}
         {review.reviewer_notes && (
           <div className="flex justify-between">
-            <span className="text-gray-500">Notes</span>
-            <span className="font-medium text-gray-900">{review.reviewer_notes}</span>
+            <span className="text-slate-400">Notes</span>
+            <span className="font-medium text-slate-100">{review.reviewer_notes}</span>
           </div>
         )}
         {review.decided_at && (
           <div className="flex justify-between">
-            <span className="text-gray-500">Decided</span>
-            <span className="font-medium text-gray-900">
+            <span className="text-slate-400">Decided</span>
+            <span className="font-medium text-slate-100">
               {new Date(review.decided_at).toLocaleString()}
             </span>
           </div>
@@ -174,7 +174,7 @@ function LinkedReviewSection({ review }: { review: ReviewResponse }) {
       </div>
       <Link
         to={`/reviews/${review.id}`}
-        className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-teal-600 hover:underline"
+        className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-accent-600 hover:underline"
         data-testid="linked-review-link"
       >
         Open Review Detail
@@ -186,27 +186,27 @@ function LinkedReviewSection({ review }: { review: ReviewResponse }) {
 
 function AuditEntriesSection({ entries }: { entries: AuditLogEntry[] }) {
   return (
-    <div data-testid="audit-entries-section" className="rounded-lg border border-gray-200 bg-white p-4">
-      <h4 className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-gray-500">
+    <div data-testid="audit-entries-section" className="glass-card rounded-lg p-4">
+      <h4 className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-400">
         <FileText size={14} />
         Audit Trail
       </h4>
       {entries.length === 0 ? (
-        <p className="text-sm text-gray-400" data-testid="audit-entries-empty">No audit entries</p>
+        <p className="text-sm text-slate-500" data-testid="audit-entries-empty">No audit entries</p>
       ) : (
         <div className="space-y-2">
           {entries.map((entry) => (
             <div key={entry.id} className="flex items-start gap-2 text-xs" data-testid={`audit-entry-${entry.id}`}>
               <div className="mt-0.5">
                 {entry.phi_accessed ? (
-                  <Shield size={12} className="text-amber-600" />
+                  <Shield size={12} className="text-amber-500" />
                 ) : (
-                  <div className="h-3 w-3 rounded-full bg-gray-200" />
+                  <div className="h-3 w-3 rounded-full bg-slate_d-600" />
                 )}
               </div>
               <div className="flex-1">
-                <span className="font-medium text-gray-700">{entry.action ?? "-"}</span>
-                <span className="ml-2 text-gray-400">
+                <span className="font-medium text-slate-300">{entry.action ?? "-"}</span>
+                <span className="ml-2 text-slate-500">
                   {entry.timestamp ? new Date(entry.timestamp).toLocaleString() : "-"}
                 </span>
               </div>
@@ -259,7 +259,7 @@ export default function AgentTaskDetail({
         setLinkedReview(result.items.length > 0 ? result.items[0] : null);
       })
       .catch(() => {
-        // Non-critical — just don't show the section
+        // Non-critical -- just don't show the section
         if (!cancelled) setLinkedReview(null);
       });
 
@@ -284,7 +284,7 @@ export default function AgentTaskDetail({
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12" data-testid="task-detail-loading">
-        <div className="h-6 w-6 animate-spin rounded-full border-4 border-teal-600 border-t-transparent" />
+        <div className="h-6 w-6 animate-spin rounded-full border-4 border-accent-700 border-t-transparent" />
       </div>
     );
   }
@@ -296,7 +296,7 @@ export default function AgentTaskDetail({
           <ArrowLeft size={16} />
           Back to list
         </Button>
-        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        <div className="glass-card rounded-lg p-4 text-sm text-coral-500">
           {error ?? "Task not found"}
         </div>
       </div>
@@ -311,19 +311,19 @@ export default function AgentTaskDetail({
       </Button>
 
       {/* Header */}
-      <div className="mb-6 rounded-lg border border-gray-200 bg-white p-5">
+      <div className="mb-6 glass-card rounded-lg p-5">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">
+            <h3 className="text-lg font-semibold text-slate-100">
               Task {task.task_id.slice(0, 12)}
             </h3>
-            <p className="mt-1 font-mono text-xs text-gray-500">
+            <p className="mt-1 font-mono text-xs text-slate-400">
               Full ID: {task.task_id}
             </p>
           </div>
           <div className="flex items-center gap-2">
             {STATUS_ICON[task.status]}
-            <span className="text-sm font-medium text-gray-700">
+            <span className="text-sm font-medium text-slate-300">
               {STATUS_LABEL[task.status] ?? task.status}
             </span>
           </div>
@@ -331,36 +331,36 @@ export default function AgentTaskDetail({
 
         <div className="mt-4 grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
           <div>
-            <p className="text-xs text-gray-500">Agent Type</p>
-            <p className="font-medium text-gray-900">{task.agent_type}</p>
+            <p className="text-xs text-slate-400">Agent Type</p>
+            <p className="font-medium text-slate-100">{task.agent_type}</p>
           </div>
           <div>
-            <p className="text-xs text-gray-500">Patient ID</p>
-            <p className="font-medium text-gray-900">
+            <p className="text-xs text-slate-400">Patient ID</p>
+            <p className="font-medium text-slate-100">
               {task.patient_id ?? "-"}
             </p>
           </div>
           <div>
-            <p className="text-xs text-gray-500">Confidence</p>
-            <p className="font-medium text-gray-900">
+            <p className="text-xs text-slate-400">Confidence</p>
+            <p className="font-medium text-slate-100">
               {task.confidence_score != null
                 ? `${(task.confidence_score * 100).toFixed(0)}%`
                 : "-"}
             </p>
           </div>
           <div>
-            <p className="text-xs text-gray-500">Workflow</p>
+            <p className="text-xs text-slate-400">Workflow</p>
             {task.workflow_execution_id ? (
               <Link
                 to={`/workflows/${task.workflow_execution_id}`}
-                className="inline-flex items-center gap-1 font-medium text-teal-600 hover:underline"
+                className="inline-flex items-center gap-1 font-medium text-accent-600 hover:underline"
                 data-testid="workflow-detail-link"
               >
                 {task.workflow_execution_id.slice(0, 8)}
                 <ExternalLink size={12} />
               </Link>
             ) : (
-              <p className="font-medium text-gray-900">-</p>
+              <p className="font-medium text-slate-100">-</p>
             )}
           </div>
         </div>
@@ -371,19 +371,19 @@ export default function AgentTaskDetail({
         {/* Left column: Input/Output */}
         <div className="space-y-4 lg:col-span-2">
           {task.error_message && (
-            <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-              <h4 className="mb-1 text-xs font-semibold uppercase tracking-wider text-red-600">
+            <div className="rounded-lg border border-coral-600/30 bg-coral-600/10 p-4">
+              <h4 className="mb-1 text-xs font-semibold uppercase tracking-wider text-coral-500">
                 Error
               </h4>
-              <p className="text-sm text-red-700">{task.error_message}</p>
+              <p className="text-sm text-coral-400">{task.error_message}</p>
             </div>
           )}
 
-          <div className="rounded-lg border border-gray-200 bg-white p-4">
+          <div className="glass-card rounded-lg p-4">
             <JsonBlock data={task.input_data} label="Input Data" />
           </div>
 
-          <div className="rounded-lg border border-gray-200 bg-white p-4">
+          <div className="glass-card rounded-lg p-4">
             <JsonBlock data={task.output_data} label="Output Data" />
           </div>
 
@@ -393,7 +393,7 @@ export default function AgentTaskDetail({
 
         {/* Right column: Timeline + Linked Review */}
         <div className="space-y-4">
-          <div className="rounded-lg border border-gray-200 bg-white p-4">
+          <div className="glass-card rounded-lg p-4">
             <StatusTimeline task={task} />
           </div>
 

@@ -71,21 +71,21 @@ export default function LoginPage() {
   }, [isAuthenticated, navigate]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50">
-      <div className="w-full max-w-sm rounded-xl border border-gray-200 bg-white p-8 shadow-sm">
+    <div className="flex min-h-screen items-center justify-center bg-slate_d-900">
+      <div className="glass-card w-full max-w-sm rounded-xl p-8 shadow-dark">
         <div className="mb-6 text-center">
-          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-lg bg-teal-700 text-xl font-bold text-white">
+          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-lg bg-indigo-600 text-xl font-bold text-white">
             S
           </div>
-          <h1 className="text-xl font-semibold text-gray-900">Slate Health</h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <h1 className="font-display text-xl font-semibold text-slate-100">Slate Health</h1>
+          <p className="mt-1 text-sm text-slate-400">
             Sign in to your account
           </p>
         </div>
 
         {error && (
           <div
-            className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+            className="mb-4 rounded-lg border border-coral-600/30 bg-coral-600/10 px-4 py-3 text-sm text-coral-500"
             role="alert"
             data-testid="login-error"
           >
@@ -95,7 +95,7 @@ export default function LoginPage() {
 
         {providersError && !error && (
           <div
-            className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700"
+            className="mb-4 rounded-lg border border-yellow-600/30 bg-yellow-600/10 px-4 py-3 text-sm text-yellow-400"
             role="status"
             data-testid="providers-warning"
           >
@@ -106,7 +106,7 @@ export default function LoginPage() {
         <div className="space-y-3" data-testid="sso-provider-list">
           {providersLoading ? (
             <div className="flex justify-center py-4" data-testid="providers-loading">
-              <div className="h-6 w-6 animate-spin rounded-full border-2 border-teal-600 border-t-transparent" />
+              <div className="h-6 w-6 animate-spin rounded-full border-2 border-accent-700 border-t-transparent" />
             </div>
           ) : (
             providers.map((provider) => {
@@ -115,7 +115,7 @@ export default function LoginPage() {
                 <button
                   key={provider}
                   onClick={() => login(provider)}
-                  className="flex w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+                  className="flex w-full items-center justify-center gap-2 rounded-lg border border-glass bg-slate_d-700 px-4 py-2.5 text-sm font-medium text-slate-200 transition-colors hover:border-glass-hover hover:bg-slate_d-600"
                   data-testid={`sso-${provider}-button`}
                 >
                   <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
@@ -138,7 +138,7 @@ export default function LoginPage() {
           )}
         </div>
 
-        <p className="mt-6 text-center text-xs text-gray-400">
+        <p className="mt-6 text-center text-xs text-slate-500">
           HIPAA-compliant healthcare AI platform
         </p>
       </div>

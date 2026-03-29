@@ -91,6 +91,9 @@ class Settings(BaseSettings):
     # When unset, falls back to in-memory per-instance limiting.
     rate_limit_redis_url: str = ""
 
+    # CORS — comma-separated allowed origins
+    cors_origins: str = ""
+
     # Logging
     log_format: str = "json"  # "json" or "text"
     log_level: str = "INFO"

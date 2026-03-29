@@ -24,12 +24,12 @@ interface WorkflowDetailProps {
 
 function eventIcon(eventType: string) {
   if (eventType.includes("Completed") || eventType.includes("completed"))
-    return <CheckCircle2 size={14} className="text-green-600" />;
+    return <CheckCircle2 size={14} className="text-mint-500" />;
   if (eventType.includes("Failed") || eventType.includes("failed"))
-    return <XCircle size={14} className="text-red-600" />;
+    return <XCircle size={14} className="text-coral-500" />;
   if (eventType.includes("Started") || eventType.includes("started"))
-    return <Loader2 size={14} className="text-blue-600" />;
-  return <Clock size={14} className="text-gray-500" />;
+    return <Loader2 size={14} className="text-blue-400" />;
+  return <Clock size={14} className="text-slate-500" />;
 }
 
 function EventRow({ event }: { event: WorkflowHistoryEvent }) {
@@ -39,19 +39,19 @@ function EventRow({ event }: { event: WorkflowHistoryEvent }) {
 
   return (
     <li
-      className="border-l-2 border-gray-200 pb-4 pl-4"
+      className="border-l-2 border-slate_d-600 pb-4 pl-4"
       data-testid={`event-${event.event_id}`}
     >
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-2">
-          <div className="-ml-[21px] rounded-full bg-white p-0.5">
+          <div className="-ml-[21px] rounded-full bg-slate_d-800 p-0.5">
             {eventIcon(event.event_type)}
           </div>
           <div>
-            <p className="text-sm font-medium text-gray-900">
+            <p className="text-sm font-medium text-slate-100">
               {event.event_type}
             </p>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-slate-400">
               {new Date(event.timestamp).toLocaleString()}
             </p>
           </div>
@@ -59,7 +59,7 @@ function EventRow({ event }: { event: WorkflowHistoryEvent }) {
         {hasDetails && (
           <button
             onClick={() => setExpanded(!expanded)}
-            className="flex items-center gap-1 text-xs text-teal-600 hover:underline"
+            className="flex items-center gap-1 text-xs text-accent-600 hover:underline"
             data-testid={`toggle-event-${event.event_id}`}
           >
             {expanded ? (
@@ -75,7 +75,7 @@ function EventRow({ event }: { event: WorkflowHistoryEvent }) {
         )}
       </div>
       {expanded && hasDetails && (
-        <pre className="mt-2 max-h-40 overflow-auto rounded-md bg-gray-50 p-2 text-xs text-gray-700">
+        <pre className="mt-2 max-h-40 overflow-auto rounded-md bg-slate_d-900 p-2 font-mono text-xs text-slate-300">
           {JSON.stringify(event.details, null, 2)}
         </pre>
       )}
@@ -123,7 +123,7 @@ export default function WorkflowDetail({
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12" data-testid="workflow-detail-loading">
-        <div className="h-6 w-6 animate-spin rounded-full border-4 border-teal-600 border-t-transparent" />
+        <div className="h-6 w-6 animate-spin rounded-full border-4 border-accent-700 border-t-transparent" />
       </div>
     );
   }
@@ -135,7 +135,7 @@ export default function WorkflowDetail({
           <ArrowLeft size={16} />
           Back to list
         </Button>
-        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        <div className="glass-card rounded-lg p-4 text-sm text-coral-500">
           {error ?? "Workflow not found"}
         </div>
       </div>
@@ -150,57 +150,57 @@ export default function WorkflowDetail({
       </Button>
 
       {/* Header */}
-      <div className="mb-6 rounded-lg border border-gray-200 bg-white p-5">
-        <h3 className="text-lg font-semibold text-gray-900">
+      <div className="mb-6 glass-card rounded-lg p-5">
+        <h3 className="text-lg font-semibold text-slate-100">
           Workflow {workflow.workflow_id.slice(0, 16)}
         </h3>
-        <p className="mt-1 font-mono text-xs text-gray-500">
+        <p className="mt-1 font-mono text-xs text-slate-400">
           {workflow.workflow_id}
         </p>
 
         <div className="mt-4 grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
           <div>
-            <p className="text-xs text-gray-500">Agent</p>
-            <p className="font-medium text-gray-900">
+            <p className="text-xs text-slate-400">Agent</p>
+            <p className="font-medium text-slate-100">
               {AGENT_LABELS[workflow.agent_type as AgentType] ??
                 workflow.agent_type}
             </p>
           </div>
           <div>
-            <p className="text-xs text-gray-500">Status</p>
-            <p className="font-medium text-gray-900">{workflow.status}</p>
+            <p className="text-xs text-slate-400">Status</p>
+            <p className="font-medium text-slate-100">{workflow.status}</p>
           </div>
           <div>
-            <p className="text-xs text-gray-500">Run ID</p>
-            <p className="font-mono text-xs text-gray-900">
+            <p className="text-xs text-slate-400">Run ID</p>
+            <p className="font-mono text-xs text-slate-100">
               {workflow.run_id?.slice(0, 12) ?? "-"}
             </p>
           </div>
           <div>
-            <p className="text-xs text-gray-500">Task Queue</p>
-            <p className="text-gray-900">{workflow.task_queue ?? "-"}</p>
+            <p className="text-xs text-slate-400">Task Queue</p>
+            <p className="text-slate-100">{workflow.task_queue ?? "-"}</p>
           </div>
         </div>
       </div>
 
       {/* Error */}
       {workflow.error_message && (
-        <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4">
-          <h4 className="mb-1 text-xs font-semibold uppercase text-red-600">
+        <div className="mb-6 rounded-lg border border-coral-600/30 bg-coral-600/10 p-4">
+          <h4 className="mb-1 text-xs font-semibold uppercase text-coral-500">
             Error
           </h4>
-          <p className="text-sm text-red-700">{workflow.error_message}</p>
+          <p className="text-sm text-coral-400">{workflow.error_message}</p>
         </div>
       )}
 
       {/* Event History Timeline */}
-      <div className="rounded-lg border border-gray-200 bg-white p-5">
-        <h4 className="mb-4 text-sm font-semibold text-gray-900">
+      <div className="glass-card rounded-lg p-5">
+        <h4 className="mb-4 text-sm font-semibold text-slate-100">
           Event History
         </h4>
         {events.length === 0 ? (
           <p
-            className="py-6 text-center text-sm text-gray-400"
+            className="py-6 text-center text-sm text-slate-500"
             data-testid="no-events"
           >
             No events recorded

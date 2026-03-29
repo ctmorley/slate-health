@@ -88,11 +88,11 @@ export default function WorkflowsPage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="flex items-center gap-2 text-xl font-semibold text-gray-900">
+        <h1 className="flex items-center gap-2 font-display text-xl font-semibold text-slate-100">
           <GitBranch size={22} />
           Workflows
         </h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm text-slate-400">
           Temporal workflow executions across all agents.
         </p>
       </div>
@@ -102,7 +102,7 @@ export default function WorkflowsPage() {
         <select
           value={agentFilter}
           onChange={(e) => setAgentFilter(e.target.value)}
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+          className="dark-select"
           data-testid="wf-agent-filter"
         >
           <option value="">All Agents</option>
@@ -115,7 +115,7 @@ export default function WorkflowsPage() {
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+          className="dark-select"
           data-testid="wf-status-filter"
         >
           <option value="">All Statuses</option>
@@ -127,7 +127,7 @@ export default function WorkflowsPage() {
       </div>
 
       {error && (
-        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        <div className="mb-4 glass-card rounded-lg p-4 text-sm text-coral-500">
           {error}
         </div>
       )}
@@ -141,8 +141,8 @@ export default function WorkflowsPage() {
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="mt-4 flex items-center justify-between">
-          <p className="text-sm text-gray-500">
-            Showing {offset + 1}–{Math.min(offset + PAGE_SIZE, total)} of{" "}
+          <p className="text-sm text-slate-400">
+            Showing {offset + 1}--{Math.min(offset + PAGE_SIZE, total)} of{" "}
             {total}
           </p>
           <div className="flex gap-2">

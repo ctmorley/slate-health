@@ -18,34 +18,34 @@ interface WorkflowListProps {
 function statusIcon(status: string) {
   switch (status) {
     case "completed":
-      return <CheckCircle2 size={14} className="text-green-600" />;
+      return <CheckCircle2 size={14} className="text-mint-500" />;
     case "failed":
     case "terminated":
-      return <XCircle size={14} className="text-red-600" />;
+      return <XCircle size={14} className="text-coral-500" />;
     case "running":
-      return <Loader2 size={14} className="animate-spin text-blue-600" />;
+      return <Loader2 size={14} className="animate-spin text-blue-400" />;
     case "cancelled":
     case "canceled":
-      return <XCircle size={14} className="text-gray-500" />;
+      return <XCircle size={14} className="text-slate-500" />;
     default:
-      return <Clock size={14} className="text-yellow-600" />;
+      return <Clock size={14} className="text-yellow-400" />;
   }
 }
 
 function statusBadgeClass(status: string): string {
   switch (status) {
     case "completed":
-      return "bg-green-100 text-green-800";
+      return "bg-mint-600/10 text-mint-500";
     case "failed":
     case "terminated":
-      return "bg-red-100 text-red-800";
+      return "bg-coral-600/10 text-coral-500";
     case "running":
-      return "bg-blue-100 text-blue-800";
+      return "bg-blue-500/10 text-blue-400";
     case "cancelled":
     case "canceled":
-      return "bg-gray-100 text-gray-600";
+      return "bg-slate-500/10 text-slate-400";
     default:
-      return "bg-yellow-100 text-yellow-800";
+      return "bg-yellow-500/10 text-yellow-400";
   }
 }
 
@@ -69,7 +69,7 @@ export default function WorkflowList({
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12" data-testid="workflow-list-loading">
-        <div className="h-6 w-6 animate-spin rounded-full border-4 border-teal-600 border-t-transparent" />
+        <div className="h-6 w-6 animate-spin rounded-full border-4 border-accent-700 border-t-transparent" />
       </div>
     );
   }
@@ -77,7 +77,7 @@ export default function WorkflowList({
   if (workflows.length === 0) {
     return (
       <div
-        className="rounded-lg border border-gray-200 bg-white py-12 text-center text-sm text-gray-400"
+        className="glass-card rounded-lg py-12 text-center text-sm text-slate-500"
         data-testid="workflow-list-empty"
       >
         No workflow executions found
@@ -87,43 +87,43 @@ export default function WorkflowList({
 
   return (
     <div
-      className="overflow-hidden rounded-lg border border-gray-200 bg-white"
+      className="glass-card overflow-hidden rounded-lg"
       data-testid="workflow-list"
     >
       <table className="w-full text-left text-sm">
-        <thead className="border-b border-gray-200 bg-gray-50">
+        <thead className="border-b border-glass bg-slate_d-800">
           <tr>
-            <th className="px-4 py-3 font-medium text-gray-600">
+            <th className="px-4 py-3 font-medium text-slate-400">
               Workflow ID
             </th>
-            <th className="px-4 py-3 font-medium text-gray-600">Agent</th>
-            <th className="px-4 py-3 font-medium text-gray-600">Status</th>
-            <th className="hidden px-4 py-3 font-medium text-gray-600 md:table-cell">
+            <th className="px-4 py-3 font-medium text-slate-400">Agent</th>
+            <th className="px-4 py-3 font-medium text-slate-400">Status</th>
+            <th className="hidden px-4 py-3 font-medium text-slate-400 md:table-cell">
               Duration
             </th>
-            <th className="hidden px-4 py-3 font-medium text-gray-600 lg:table-cell">
+            <th className="hidden px-4 py-3 font-medium text-slate-400 lg:table-cell">
               Started
             </th>
             <th className="w-10 px-4 py-3" />
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-100">
+        <tbody className="divide-y divide-glass">
           {workflows.map((wf) => (
             <tr
               key={wf.id}
               onClick={() => onSelectWorkflow(wf)}
-              className="cursor-pointer transition-colors hover:bg-gray-50"
+              className="cursor-pointer transition-colors hover:bg-slate_d-700"
               data-testid={`workflow-row-${wf.id}`}
             >
               <td className="px-4 py-3">
                 <div className="flex items-center gap-2">
-                  <Play size={14} className="text-gray-400" />
-                  <span className="font-mono text-xs text-gray-700">
+                  <Play size={14} className="text-slate-500" />
+                  <span className="font-mono text-xs text-slate-300">
                     {wf.workflow_id.slice(0, 16)}
                   </span>
                 </div>
               </td>
-              <td className="px-4 py-3 text-gray-700">
+              <td className="px-4 py-3 text-slate-300">
                 {AGENT_LABELS[wf.agent_type as AgentType] ?? wf.agent_type}
               </td>
               <td className="px-4 py-3">
@@ -135,14 +135,14 @@ export default function WorkflowList({
                   {wf.status}
                 </span>
               </td>
-              <td className="hidden px-4 py-3 text-xs text-gray-500 md:table-cell">
+              <td className="hidden px-4 py-3 text-xs text-slate-400 md:table-cell">
                 {formatDuration(wf.created_at, wf.updated_at)}
               </td>
-              <td className="hidden px-4 py-3 text-xs text-gray-500 lg:table-cell">
+              <td className="hidden px-4 py-3 text-xs text-slate-400 lg:table-cell">
                 {new Date(wf.created_at).toLocaleString()}
               </td>
               <td className="px-4 py-3">
-                <ChevronRight size={16} className="text-gray-400" />
+                <ChevronRight size={16} className="text-slate-500" />
               </td>
             </tr>
           ))}

@@ -82,7 +82,7 @@ export default function AuditLogViewer() {
       });
   }, []);
 
-  // Debounce search text → searchDebounced so we don't fire API on every keystroke
+  // Debounce search text so we don't fire API on every keystroke
   useEffect(() => {
     const timer = setTimeout(() => setSearchDebounced(searchText), 300);
     return () => clearTimeout(timer);
@@ -156,36 +156,36 @@ export default function AuditLogViewer() {
 
   return (
     <div data-testid="audit-log-viewer">
-      {/* Filters — Row 1: search + action + resource type */}
+      {/* Filters -- Row 1: search + action + resource type */}
       <div className="mb-3 flex flex-col gap-3 lg:flex-row lg:items-end">
         <div className="flex-1">
-          <label className="mb-1 block text-xs font-medium text-gray-600">
+          <label className="mb-1 block text-xs font-medium text-slate-400">
             Search
           </label>
           <div className="relative">
             <Search
               size={16}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"
             />
             <input
               type="text"
               placeholder="Search by actor, action, resource..."
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
-              className="w-full rounded-md border border-gray-300 py-2 pl-9 pr-3 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+              className="dark-input w-full pl-9"
               data-testid="audit-search"
             />
           </div>
         </div>
 
         <div>
-          <label className="mb-1 block text-xs font-medium text-gray-600">
+          <label className="mb-1 block text-xs font-medium text-slate-400">
             Action Type
           </label>
           <select
             value={actionFilter}
             onChange={(e) => setActionFilter(e.target.value)}
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+            className="dark-select"
             data-testid="audit-action-filter"
           >
             <option value="">All Actions</option>
@@ -198,13 +198,13 @@ export default function AuditLogViewer() {
         </div>
 
         <div>
-          <label className="mb-1 block text-xs font-medium text-gray-600">
+          <label className="mb-1 block text-xs font-medium text-slate-400">
             Resource Type
           </label>
           <select
             value={resourceTypeFilter}
             onChange={(e) => setResourceTypeFilter(e.target.value)}
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+            className="dark-select"
             data-testid="audit-resource-filter"
           >
             <option value="">All Resources</option>
@@ -217,10 +217,10 @@ export default function AuditLogViewer() {
         </div>
       </div>
 
-      {/* Filters — Row 2: actor, dates, PHI, export */}
+      {/* Filters -- Row 2: actor, dates, PHI, export */}
       <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-end">
         <div>
-          <label className="mb-1 block text-xs font-medium text-gray-600">
+          <label className="mb-1 block text-xs font-medium text-slate-400">
             Actor ID
           </label>
           <input
@@ -228,47 +228,47 @@ export default function AuditLogViewer() {
             placeholder="Filter by actor UUID..."
             value={actorIdFilter}
             onChange={(e) => setActorIdFilter(e.target.value)}
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+            className="dark-input"
             data-testid="audit-actor-filter"
           />
         </div>
 
         <div>
-          <label className="mb-1 block text-xs font-medium text-gray-600">
+          <label className="mb-1 block text-xs font-medium text-slate-400">
             Start Date
           </label>
           <input
             type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+            className="dark-input"
             data-testid="audit-start-date"
           />
         </div>
 
         <div>
-          <label className="mb-1 block text-xs font-medium text-gray-600">
+          <label className="mb-1 block text-xs font-medium text-slate-400">
             End Date
           </label>
           <input
             type="date"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+            className="dark-input"
             data-testid="audit-end-date"
           />
         </div>
 
         <div className="flex items-end gap-2">
-          <label className="flex items-center gap-1.5 rounded-md border border-gray-300 px-3 py-2 text-sm">
+          <label className="flex items-center gap-1.5 rounded-md border border-glass bg-slate_d-800 px-3 py-2 text-sm text-slate-300">
             <input
               type="checkbox"
               checked={phiOnly}
               onChange={(e) => setPhiOnly(e.target.checked)}
-              className="h-4 w-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
+              className="h-4 w-4 rounded border-slate-600 bg-slate_d-700 text-accent-700 focus:ring-accent-700"
               data-testid="audit-phi-filter"
             />
-            <Shield size={14} className="text-amber-600" />
+            <Shield size={14} className="text-amber-500" />
             PHI only
           </label>
           <Button variant="outline" size="sm" onClick={handleExport} data-testid="audit-export-button">
@@ -280,12 +280,12 @@ export default function AuditLogViewer() {
 
       {/* Errors */}
       {error && (
-        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700" data-testid="audit-error">
+        <div className="mb-4 glass-card rounded-lg p-4 text-sm text-coral-500" data-testid="audit-error">
           {error}
         </div>
       )}
       {exportError && (
-        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700" data-testid="audit-export-error">
+        <div className="mb-4 glass-card rounded-lg p-4 text-sm text-coral-500" data-testid="audit-export-error">
           Export failed: {exportError}
         </div>
       )}
@@ -293,63 +293,63 @@ export default function AuditLogViewer() {
       {/* Loading */}
       {loading && logs.length === 0 ? (
         <div className="flex items-center justify-center py-12" data-testid="audit-loading">
-          <div className="h-6 w-6 animate-spin rounded-full border-4 border-teal-600 border-t-transparent" />
+          <div className="h-6 w-6 animate-spin rounded-full border-4 border-accent-700 border-t-transparent" />
         </div>
       ) : logs.length === 0 ? (
         <div
-          className="rounded-lg border border-gray-200 bg-white py-12 text-center text-sm text-gray-400"
+          className="glass-card rounded-lg py-12 text-center text-sm text-slate-500"
           data-testid="audit-empty"
         >
           No audit log entries found
         </div>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
+        <div className="glass-card overflow-hidden rounded-lg">
           <table className="w-full text-left text-sm">
-            <thead className="border-b border-gray-200 bg-gray-50">
+            <thead className="border-b border-glass bg-slate_d-800">
               <tr>
-                <th className="px-4 py-3 font-medium text-gray-600">
+                <th className="px-4 py-3 font-medium text-slate-400">
                   Timestamp
                 </th>
-                <th className="px-4 py-3 font-medium text-gray-600">Actor</th>
-                <th className="px-4 py-3 font-medium text-gray-600">Action</th>
-                <th className="hidden px-4 py-3 font-medium text-gray-600 md:table-cell">
+                <th className="px-4 py-3 font-medium text-slate-400">Actor</th>
+                <th className="px-4 py-3 font-medium text-slate-400">Action</th>
+                <th className="hidden px-4 py-3 font-medium text-slate-400 md:table-cell">
                   Resource
                 </th>
-                <th className="hidden px-4 py-3 font-medium text-gray-600 lg:table-cell">
+                <th className="hidden px-4 py-3 font-medium text-slate-400 lg:table-cell">
                   Resource ID
                 </th>
-                <th className="px-4 py-3 font-medium text-gray-600">PHI</th>
+                <th className="px-4 py-3 font-medium text-slate-400">PHI</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-glass">
               {logs.map((log) => (
                 <tr
                   key={log.id}
-                  className="hover:bg-gray-50"
+                  className="hover:bg-slate_d-700"
                   data-testid={`audit-row-${log.id}`}
                 >
-                  <td className="px-4 py-3 text-xs text-gray-600">
+                  <td className="px-4 py-3 text-xs text-slate-400">
                     {log.timestamp ? new Date(log.timestamp).toLocaleString() : "-"}
                   </td>
-                  <td className="px-4 py-3 text-gray-700">
+                  <td className="px-4 py-3 text-slate-300">
                     {log.actor_id ?? "system"}
                   </td>
                   <td className="px-4 py-3">
-                    <span className="inline-flex items-center rounded-md bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">
+                    <span className="inline-flex items-center rounded-md bg-slate_d-600 px-2 py-0.5 text-xs font-medium text-slate-300">
                       {log.action ?? "-"}
                     </span>
                   </td>
-                  <td className="hidden px-4 py-3 text-gray-600 md:table-cell">
+                  <td className="hidden px-4 py-3 text-slate-400 md:table-cell">
                     {log.resource_type ?? "-"}
                   </td>
-                  <td className="hidden px-4 py-3 font-mono text-xs text-gray-500 lg:table-cell">
+                  <td className="hidden px-4 py-3 font-mono text-xs text-slate-500 lg:table-cell">
                     {log.resource_id?.slice(0, 12) ?? "-"}
                   </td>
                   <td className="px-4 py-3">
                     {log.phi_accessed ? (
-                      <Shield size={14} className="text-amber-600" />
+                      <Shield size={14} className="text-amber-500" />
                     ) : (
-                      <span className="text-gray-300">-</span>
+                      <span className="text-slate-600">-</span>
                     )}
                   </td>
                 </tr>
@@ -362,8 +362,8 @@ export default function AuditLogViewer() {
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="mt-4 flex items-center justify-between">
-          <p className="text-sm text-gray-500">
-            Showing {offset + 1}–{Math.min(offset + PAGE_SIZE, total)} of{" "}
+          <p className="text-sm text-slate-400">
+            Showing {offset + 1}--{Math.min(offset + PAGE_SIZE, total)} of{" "}
             {total}
           </p>
           <div className="flex gap-2">

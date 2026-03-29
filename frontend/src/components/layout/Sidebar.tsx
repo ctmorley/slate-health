@@ -46,14 +46,14 @@ const navItems: NavItem[] = [
 export default function Sidebar() {
   return (
     <aside
-      className="flex h-screen w-60 flex-col border-r border-gray-200 bg-white"
+      className="flex h-screen w-60 flex-col border-r border-glass bg-slate_d-800"
       data-testid="sidebar"
     >
-      <div className="flex h-14 items-center gap-2 border-b border-gray-200 px-4">
-        <div className="flex h-8 w-8 items-center justify-center rounded-md bg-teal-700 text-sm font-bold text-white">
+      <div className="flex h-14 items-center gap-2 border-b border-glass px-4">
+        <div className="flex h-8 w-8 items-center justify-center rounded-md bg-indigo-600 text-sm font-bold text-white">
           S
         </div>
-        <span className="text-lg font-semibold text-gray-900">
+        <span className="font-display text-lg font-semibold text-slate-100">
           Slate Health
         </span>
       </div>
@@ -67,8 +67,8 @@ export default function Sidebar() {
             className={({ isActive }) =>
               `flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
                 isActive
-                  ? "bg-teal-50 text-teal-700"
-                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  ? "bg-[rgba(99,102,241,0.1)] text-accent-600"
+                  : "text-slate-400 hover:bg-slate_d-700 hover:text-slate-200"
               }`
             }
           >

@@ -1,7 +1,40 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 body {
-  @apply text-gray-900 antialiased;
+  @apply bg-slate_d-900 text-slate-100 antialiased;
+  font-family: "Inter", system-ui, sans-serif;
+}
+
+@layer components {
+  .glass-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .glass-card-hover:hover {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(99, 102, 241, 0.2);
+  }
+
+  .gradient-text {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, #818CF8, #34D399);
+  }
+
+  /* Dark-themed form inputs */
+  .dark-input {
+    @apply rounded-md border border-glass bg-slate_d-800 px-3 py-2 text-sm text-slate-200 placeholder-slate-500;
+    @apply focus:border-accent-700 focus:outline-none focus:ring-1 focus:ring-accent-700;
+  }
+
+  .dark-select {
+    @apply rounded-md border border-glass bg-slate_d-800 px-3 py-2 text-sm text-slate-200;
+    @apply focus:border-accent-700 focus:outline-none focus:ring-1 focus:ring-accent-700;
+  }
 }

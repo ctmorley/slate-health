@@ -10,7 +10,7 @@ interface NewTaskFormProps {
   onCancel: () => void;
 }
 
-/** Field definitions per agent type — drives the dynamic form. */
+/** Field definitions per agent type -- drives the dynamic form. */
 interface FieldDef {
   name: string;
   label: string;
@@ -126,14 +126,14 @@ export default function NewTaskForm({
 
   return (
     <form onSubmit={handleSubmit} data-testid="new-task-form">
-      <div className="rounded-lg border border-gray-200 bg-white p-5">
-        <h3 className="mb-4 text-lg font-semibold text-gray-900">
+      <div className="glass-card rounded-lg p-5">
+        <h3 className="mb-4 text-lg font-semibold text-slate-100">
           New {AGENT_LABELS[agentType]} Task
         </h3>
 
         {submitError && (
           <div
-            className="mb-4 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700"
+            className="mb-4 rounded-md border border-coral-600/30 bg-coral-600/10 p-3 text-sm text-coral-500"
             data-testid="submit-error"
           >
             {submitError}
@@ -146,10 +146,10 @@ export default function NewTaskForm({
               key={field.name}
               className={field.type === "textarea" ? "sm:col-span-2" : ""}
             >
-              <label className="mb-1 block text-sm font-medium text-gray-700">
+              <label className="mb-1 block text-sm font-medium text-slate-300">
                 {field.label}
                 {field.required && (
-                  <span className="ml-0.5 text-red-500">*</span>
+                  <span className="ml-0.5 text-coral-500">*</span>
                 )}
               </label>
               {field.type === "textarea" ? (
@@ -163,10 +163,10 @@ export default function NewTaskForm({
                   }
                   placeholder={field.placeholder}
                   rows={3}
-                  className={`w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-1 ${
+                  className={`dark-input w-full ${
                     errors[field.name]
-                      ? "border-red-300 focus:border-red-500 focus:ring-red-500"
-                      : "border-gray-300 focus:border-teal-500 focus:ring-teal-500"
+                      ? "border-coral-500 focus:border-coral-500 focus:ring-coral-500"
+                      : ""
                   }`}
                   data-testid={`field-${field.name}`}
                 />
@@ -181,17 +181,17 @@ export default function NewTaskForm({
                     }))
                   }
                   placeholder={field.placeholder}
-                  className={`w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-1 ${
+                  className={`dark-input w-full ${
                     errors[field.name]
-                      ? "border-red-300 focus:border-red-500 focus:ring-red-500"
-                      : "border-gray-300 focus:border-teal-500 focus:ring-teal-500"
+                      ? "border-coral-500 focus:border-coral-500 focus:ring-coral-500"
+                      : ""
                   }`}
                   data-testid={`field-${field.name}`}
                 />
               )}
               {errors[field.name] && (
                 <p
-                  className="mt-1 text-xs text-red-600"
+                  className="mt-1 text-xs text-coral-500"
                   data-testid={`error-${field.name}`}
                 >
                   {errors[field.name]}

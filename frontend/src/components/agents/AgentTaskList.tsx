@@ -26,32 +26,32 @@ const STATUS_CONFIG: Record<
   pending: {
     icon: <Clock size={14} />,
     label: "Pending",
-    badgeClass: "bg-yellow-100 text-yellow-800",
+    badgeClass: "bg-yellow-500/10 text-yellow-400",
   },
   running: {
     icon: <Loader2 size={14} className="animate-spin" />,
     label: "Running",
-    badgeClass: "bg-blue-100 text-blue-800",
+    badgeClass: "bg-blue-500/10 text-blue-400",
   },
   completed: {
     icon: <CheckCircle2 size={14} />,
     label: "Completed",
-    badgeClass: "bg-green-100 text-green-800",
+    badgeClass: "bg-mint-600/10 text-mint-500",
   },
   failed: {
     icon: <XCircle size={14} />,
     label: "Failed",
-    badgeClass: "bg-red-100 text-red-800",
+    badgeClass: "bg-coral-600/10 text-coral-500",
   },
   review: {
     icon: <AlertTriangle size={14} />,
     label: "In Review",
-    badgeClass: "bg-orange-100 text-orange-800",
+    badgeClass: "bg-orange-500/10 text-orange-400",
   },
   cancelled: {
     icon: <Ban size={14} />,
     label: "Cancelled",
-    badgeClass: "bg-gray-100 text-gray-600",
+    badgeClass: "bg-slate-500/10 text-slate-400",
   },
 };
 
@@ -125,7 +125,7 @@ export default function AgentTaskList({
   if (loading && tasks.length === 0) {
     return (
       <div className="flex items-center justify-center py-12" data-testid="task-list-loading">
-        <div className="h-6 w-6 animate-spin rounded-full border-4 border-teal-600 border-t-transparent" />
+        <div className="h-6 w-6 animate-spin rounded-full border-4 border-accent-700 border-t-transparent" />
       </div>
     );
   }
@@ -133,7 +133,7 @@ export default function AgentTaskList({
   if (error) {
     return (
       <div
-        className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700"
+        className="glass-card rounded-lg p-4 text-sm text-coral-500"
         data-testid="task-list-error"
       >
         {error}
@@ -148,21 +148,21 @@ export default function AgentTaskList({
         <div className="relative flex-1">
           <Search
             size={16}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"
           />
           <input
             type="text"
             placeholder="Search by task ID or patient ID..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-md border border-gray-300 py-2 pl-9 pr-3 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+            className="dark-input w-full pl-9"
             data-testid="task-search-input"
           />
         </div>
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+          className="dark-select"
           data-testid="task-status-filter"
         >
           <option value="">All Statuses</option>
@@ -177,7 +177,7 @@ export default function AgentTaskList({
           type="date"
           value={startDate}
           onChange={(e) => setStartDate(e.target.value)}
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+          className="dark-input"
           data-testid="task-start-date"
           placeholder="Start date"
         />
@@ -185,7 +185,7 @@ export default function AgentTaskList({
           type="date"
           value={endDate}
           onChange={(e) => setEndDate(e.target.value)}
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+          className="dark-input"
           data-testid="task-end-date"
           placeholder="End date"
         />
@@ -194,32 +194,32 @@ export default function AgentTaskList({
       {/* Task list */}
       {tasks.length === 0 ? (
         <div
-          className="rounded-lg border border-gray-200 bg-white py-12 text-center text-sm text-gray-400"
+          className="glass-card rounded-lg py-12 text-center text-sm text-slate-500"
           data-testid="task-list-empty"
         >
           No tasks found
         </div>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
+        <div className="glass-card overflow-hidden rounded-lg">
           <table className="w-full text-left text-sm">
-            <thead className="border-b border-gray-200 bg-gray-50">
+            <thead className="border-b border-glass bg-slate_d-800">
               <tr>
-                <th className="px-4 py-3 font-medium text-gray-600">
+                <th className="px-4 py-3 font-medium text-slate-400">
                   Task ID
                 </th>
-                <th className="px-4 py-3 font-medium text-gray-600">Status</th>
-                <th className="hidden px-4 py-3 font-medium text-gray-600 md:table-cell">
+                <th className="px-4 py-3 font-medium text-slate-400">Status</th>
+                <th className="hidden px-4 py-3 font-medium text-slate-400 md:table-cell">
                   Patient
                 </th>
-                <th className="hidden px-4 py-3 font-medium text-gray-600 lg:table-cell">
+                <th className="hidden px-4 py-3 font-medium text-slate-400 lg:table-cell">
                   Confidence
                 </th>
-                <th className="px-4 py-3 font-medium text-gray-600">
+                <th className="px-4 py-3 font-medium text-slate-400">
                   Created
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-glass">
               {tasks.map((task) => {
                 const cfg =
                   STATUS_CONFIG[task.status] ?? STATUS_CONFIG.pending;
@@ -227,10 +227,10 @@ export default function AgentTaskList({
                   <tr
                     key={task.id}
                     onClick={() => onSelectTask(task)}
-                    className="cursor-pointer transition-colors hover:bg-gray-50"
+                    className="cursor-pointer transition-colors hover:bg-slate_d-700"
                     data-testid={`task-row-${task.id}`}
                   >
-                    <td className="px-4 py-3 font-mono text-xs text-gray-700">
+                    <td className="px-4 py-3 font-mono text-xs text-slate-300">
                       {task.task_id.slice(0, 12)}...
                     </td>
                     <td className="px-4 py-3">
@@ -242,19 +242,19 @@ export default function AgentTaskList({
                         {cfg.label}
                       </span>
                     </td>
-                    <td className="hidden px-4 py-3 text-gray-600 md:table-cell">
+                    <td className="hidden px-4 py-3 text-slate-400 md:table-cell">
                       {task.patient_id?.slice(0, 12) ?? "-"}
                     </td>
                     <td className="hidden px-4 py-3 lg:table-cell">
                       {task.confidence_score != null ? (
-                        <span className="text-gray-700">
+                        <span className="text-slate-300">
                           {(task.confidence_score * 100).toFixed(0)}%
                         </span>
                       ) : (
-                        <span className="text-gray-400">-</span>
+                        <span className="text-slate-500">-</span>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-xs text-gray-500">
+                    <td className="px-4 py-3 text-xs text-slate-400">
                       {task.created_at
                         ? new Date(task.created_at).toLocaleDateString()
                         : "-"}
@@ -270,8 +270,8 @@ export default function AgentTaskList({
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="mt-4 flex items-center justify-between">
-          <p className="text-sm text-gray-500">
-            Showing {offset + 1}–{Math.min(offset + PAGE_SIZE, total)} of{" "}
+          <p className="text-sm text-slate-400">
+            Showing {offset + 1}--{Math.min(offset + PAGE_SIZE, total)} of{" "}
             {total}
           </p>
           <div className="flex gap-2">

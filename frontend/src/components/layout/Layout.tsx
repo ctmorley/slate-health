@@ -14,7 +14,7 @@ export default function Layout({ children }: LayoutProps) {
       <Sidebar />
       <div className="flex flex-1 flex-col overflow-hidden">
         <Header isWsConnected={isConnected} />
-        <main className="flex-1 overflow-y-auto bg-gray-50 p-6">
+        <main className="flex-1 overflow-y-auto bg-slate_d-900 p-6">
           {children}
         </main>
       </div>

@@ -46,10 +46,10 @@ export default function AgentPage() {
   if (!validAgentType) {
     return (
       <div>
-        <h1 className="text-xl font-semibold text-gray-900">
+        <h1 className="font-display text-xl font-semibold text-slate-100">
           Unknown Agent Type
         </h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm text-slate-400">
           The agent type &quot;{agentType}&quot; is not recognized.
         </p>
       </div>
@@ -58,14 +58,14 @@ export default function AgentPage() {
 
   return (
     <div>
-      {/* Page header — only shown on list view */}
+      {/* Page header -- only shown on list view */}
       {view === "list" && (
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-semibold text-gray-900">
+            <h1 className="font-display text-xl font-semibold text-slate-100">
               {label} Agent
             </h1>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-slate-400">
               Task list and management for the {label} agent.
             </p>
           </div>
